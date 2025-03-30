@@ -1,0 +1,93 @@
+{% extends "navbar.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<section class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 pt-20">
+  <div class="w-full max-w-md p-8 bg-white bg-opacity-90 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-200">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">Create an Account</h2>
+    <p class="text-center text-gray-600 mb-6">Join Ideavate to share your ideas</p>
+    
+    {% if form.errors %}
+      <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    
+    <form method="POST" class="mt-6 space-y-5">
+      {% csrf_token %}
+      
+      <div class="relative">
+        <i class="fas fa-user absolute left-3 top-3 text-gray-500"></i>
+        {{ form.username }}
+      </div>
+      
+      <div class="relative">
+        <i class="fas fa-envelope absolute left-3 top-3 text-gray-500"></i>
+        {{ form.email }}
+      </div>
+      
+      <div class="relative">
+        <i class="fas fa-lock absolute left-3 top-3 text-gray-500"></i>
+        {{ form.password1 }}
+      </div>
+      
+      <div class="relative">
+        <i class="fas fa-lock absolute left-3 top-3 text-gray-500"></i>
+        {{ form.password2 }}
+      </div>
+      
+      <!-- User Type Selection -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Sign Up As</label>
+        {{ form.user_type }}
+      </div>
+      
+      <!-- Organization-Specific Fields (Hidden by Default) -->
+      <div id="organizationFields" class="hidden space-y-3">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Company Name</label>
+          {{ form.company_name }}
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Job Title</label>
+          {{ form.job_title }}
+        </div>
+      </div>
+      
+      <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+        Sign Up
+      </button>
+    </form>
+    
+    <p class="mt-6 text-center text-gray-700">
+      Already have an account?
+      <a href="{% url 'signin' %}" class="text-blue-600 font-medium hover:underline">Sign In</a>
+    </p>
+  </div>
+</section>
+
+<!-- FontAwesome for icons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+<script>
+  // Toggle organization-specific fields based on user type selection
+  const userTypeSelect = document.getElementById("id_user_type");
+  const organizationFields = document.getElementById("organizationFields");
+
+  userTypeSelect.addEventListener("change", function () {
+    if (this.value === "organization") {
+      organizationFields.classList.remove("hidden");
+    } else {
+      organizationFields.classList.add("hidden");
+    }
+  });
+</script>
+{% endblock %}

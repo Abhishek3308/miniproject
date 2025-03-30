@@ -1,0 +1,33 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Post Your Idea</h2>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Render Form Fields -->
+            <div class="space-y-2">
+                {% for field in form %}
+                    <div>
+                        <label class="block text-gray-700 font-medium">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">
+                Submit Idea
+            </button>
+        </form>
+
+        <a href="{% url 'home' %}" class="block text-center text-blue-500 hover:underline mt-4">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

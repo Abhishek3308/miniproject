@@ -1,0 +1,57 @@
+{% extends "navbar.html" %}
+
+{% block title %}All Ideas - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Total Ideas</h1>
+
+    <!-- Search Bar -->
+    <input type="text" id="searchInput" placeholder="Search Ideas..." class="w-full p-2 border border-gray-300 rounded-md mb-4">
+
+    <!-- Ideas Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200 text-gray-700">
+                    <th class="py-2 px-4 border">Title</th>
+                    <th class="py-2 px-4 border">Posted By</th>
+                    <th class="py-2 px-4 border">Date Submitted</th>
+                    <th class="py-2 px-4 border">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ideaTable">
+                {% for idea in ideas %}
+                <tr class="border hover:bg-gray-100">
+                    <td class="py-2 px-4 border">{{ idea.title }}</td>
+                    <td class="py-2 px-4 border">{{ idea.user.username }}</td>
+                    <td class="py-2 px-4 border">{{ idea.created_at|date:"Y-m-d" }}</td>
+                    <td class="py-2 px-4 border text-center">
+                        <a href="{% url 'idea_detail' idea.id %}" class="text-blue-500 hover:underline">View</a> |
+                        <a href="{% url 'delete_idea' idea.id %}" class="text-red-500 hover:underline">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4">No ideas found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JavaScript for Search -->
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#ideaTable tr");
+
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? "" : "none";
+        });
+    });
+</script>
+
+{% endblock %}
