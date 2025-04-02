@@ -55,14 +55,20 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = ["profession", "expertise", "bio", "resume", "profile_picture", "linkedin", "portfolio_website"]
         widgets = {
-            "bio": forms.Textarea(attrs={"rows": 3, "placeholder": "Tell us about yourself..."}),
+            "profession": forms.TextInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Enter your profession"}),
+            "expertise": forms.TextInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Your expertise areas"}),
+            "bio": forms.Textarea(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "rows": 3, "placeholder": "Tell us about yourself..."}),
+            "resume": forms.ClearableFileInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm"}),
+            "profile_picture": forms.ClearableFileInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm"}),
+            "linkedin": forms.URLInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "LinkedIn Profile URL"}),
+            "portfolio_website": forms.URLInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Your portfolio website"}),
         }
 
 # Organization Profile Form
 class OrganizationProfileForm(forms.ModelForm):
     class Meta:
         model = OrganizationProfile
-        fields = ["company_name", "job_title", "industry", "location", "website", "linkedin"]
+        fields = ["company_name", "job_title", "industry", "location", "website", "linkedin","profile_picture"]
 
 # Idea Submission Form
 class IdeaForm(forms.ModelForm):

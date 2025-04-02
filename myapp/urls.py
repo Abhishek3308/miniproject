@@ -11,14 +11,18 @@ urlpatterns = [
     # Profiles
     path('user/profile/', views.user_profile, name='user_profile'),
     path('organization/profile/', views.organization_profile, name='organization_profile'),
+    path('user/profile/edit/', views.edit_userprofile, name='edit_userprofile'),
+    path('organization/profile/edit/',views.edit_organization_profile, name='edit_organization_profile'),
+
 
     # Idea Management
     path('ideas/<int:idea_id>/', views.idea_detail, name='idea_detail'),
     path('ideas/<int:idea_id>/edit/', views.edit_idea, name='edit_idea'),
     path('ideas/<int:idea_id>/delete/', views.delete_idea, name='delete_idea'),
     path('ideas/', views.idea_list, name='idea_list'),
-    path("post-idea/", views.post_idea, name="post_idea"),
+    path("post_idea/", views.post_idea, name="post_idea"),
     path('delete_idea/', views.delete_idea, name='delete_idea'),
+    path('search_ideas/',views.search_ideas, name='search_ideas'),
     # path("explore-ideas/", views.explore_ideas, name="explore_ideas"),
     path("investors/", views.investors, name="investors"),
     path("admin_dashboard/",views.admin_dashboard, name="admin_dashboard"),
@@ -26,5 +30,5 @@ urlpatterns = [
     path("admin_dashboard/organizations/",views. admin_organizations, name="admin_organizations"),
     path("admin_dashboard/ideas/",views. admin_ideas, name="admin_ideas"),
     
-
+    path('notifications/',views.notifications_view, name='notifications'),
 ]

@@ -33,6 +33,7 @@ class OrganizationProfile(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     linkedin = models.URLField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
 
     class Meta:
         verbose_name = "Organization Profile"

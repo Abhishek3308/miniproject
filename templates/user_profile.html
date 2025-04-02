@@ -1,65 +1,39 @@
 {% extends "navbar.html" %}
+{% load static %}  <!-- Add this line at the top -->
 
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Edit Your Profile</h2>
-
-    <form method="POST" enctype="multipart/form-data" class="space-y-4">
-        {% csrf_token %}
-
-        <!-- Profile Picture Upload -->
-        <div class="flex items-center space-x-4">
-            {% if user.profile.profile_picture %}
-                <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="w-20 h-20 rounded-full border">
-            {% endif %}
-            <div>
-                <label class="block font-medium text-gray-700">Profile Picture</label>
-                {{ form.profile_picture }}
-            </div>
-        </div>
-
-        <!-- Profession -->
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
+    <h2 class="text-2xl font-bold text-gray-800">Profile</h2>
+    
+    <!-- Profile Picture -->
+    <div class="flex items-center space-x-4 mt-4">
+        <img src="{% if user.user_profile.profile_picture %}{{ user.user_profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" 
+             alt="Profile Picture" 
+             class="h-24 w-24 rounded-full border-2 border-gray-300 object-cover">
         <div>
-            <label class="block font-medium text-gray-700">Profession</label>
-            {{ form.profession }}
+            <h3 class="text-lg font-semibold">{{ user.username }}</h3>
+            <p class="text-gray-600">{{ user.email }}</p>
         </div>
+    </div>
 
-        <!-- Expertise -->
-        <div>
-            <label class="block font-medium text-gray-700">Expertise</label>
-            {{ form.expertise }}
-        </div>
+    <!-- Profile Details -->
+    <div class="mt-6">
+        <p><strong>Profession:</strong> {{ user.user_profile.profession|default:"Not specified" }}</p>
+        <p><strong>Expertise:</strong> {{ user.user_profile.expertise|default:"Not specified" }}</p>
+        <p><strong>Bio:</strong> {{ user.user_profile.bio|default:"No bio available" }}</p>
+        
+        {% if user.user_profile.linkedin %}
+        <p><strong>LinkedIn:</strong> <a href="{{ user.user_profile.linkedin }}" class="text-blue-500" target="_blank">View Profile</a></p>
+        {% endif %}
 
-        <!-- Bio -->
-        <div>
-            <label class="block font-medium text-gray-700">Bio</label>
-            {{ form.bio }}
-        </div>
+        {% if user.user_profile.portfolio_website %}
+        <p><strong>Portfolio:</strong> <a href="{{ user.user_profile.portfolio_website }}" class="text-blue-500" target="_blank">Visit Website</a></p>
+        {% endif %}
+    </div>
 
-        <!-- Resume Upload -->
-        <div>
-            <label class="block font-medium text-gray-700">Upload Resume</label>
-            {{ form.resume }}
-        </div>
-
-        <!-- LinkedIn Profile -->
-        <div>
-            <label class="block font-medium text-gray-700">LinkedIn Profile</label>
-            {{ form.linkedin }}
-        </div>
-
-        <!-- Portfolio Website -->
-        <div>
-            <label class="block font-medium text-gray-700">Portfolio Website</label>
-            {{ form.portfolio_website }}
-        </div>
-
-        <!-- Submit Button -->
-        <div>
-            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
-                Save Profile
-            </button>
-        </div>
-    </form>
+    <!-- Edit Profile Button -->
+    <div class="mt-6">
+        <a href="{% url 'edit_userprofile' %}" class="bg-blue-500 text-white px-4 py-2 rounded">Edit Profile</a>
+    </div>
 </div>
 {% endblock %}
