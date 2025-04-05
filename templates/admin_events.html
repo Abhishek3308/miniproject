@@ -1,0 +1,94 @@
+{% extends "navbar.html" %}
+
+{% block title %}Admin Events - Ideavate{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Admin - Events</h1>
+
+    <!-- Search & Filters -->
+    <div class="flex flex-wrap items-center gap-4 mb-4">
+        <input type="text" id="searchInput" onkeyup="searchEvents()" placeholder="Search events..." 
+            class="p-2 border border-gray-300 rounded-lg w-full md:w-1/3 shadow-sm focus:ring-2 focus:ring-indigo-500">
+
+        <select id="locationFilter" onchange="filterEvents()" 
+            class="p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Locations</option>
+            {% for event in events %}
+                <option value="{{ event.location }}">{{ event.location }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="date" id="dateFilter" onchange="filterEvents()" 
+            class="p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500">
+    </div>
+
+    <!-- Events Table -->
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+        <table class="table-auto w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-indigo-600 text-white">
+                    <th class="border border-gray-300 p-3">Title</th>
+                    <th class="border border-gray-300 p-3">Date</th>
+                    <th class="border border-gray-300 p-3">Location</th>
+                    <th class="border border-gray-300 p-3">Posted By</th>
+                    <th class="border border-gray-300 p-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="eventsTable">
+                {% for event in events %}
+                <tr class="hover:bg-gray-100 transition">
+                    <td class="border border-gray-300 p-3">{{ event.title }}</td>
+                    <td class="border border-gray-300 p-3">{{ event.date }}</td>
+                    <td class="border border-gray-300 p-3">{{ event.location }}</td>
+                    <td class="border border-gray-300 p-3">{{ event.user.username }}</td>
+                    <td class="border border-gray-300 p-3 flex gap-2">
+                        <!-- View Event Button -->
+                        <a href="{% url 'event_details' event.id %}" 
+                            class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">View</a>
+                        
+                        <!-- Delete Event Button -->
+                        <a href="{% url 'delete_event' event.id %}" 
+                            class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center p-4 text-gray-500">No events found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JavaScript for Search & Filter -->
+<script>
+    function searchEvents() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let rows = document.querySelectorAll("#eventsTable tr");
+
+        rows.forEach(row => {
+            let title = row.cells[0].innerText.toLowerCase();
+            row.style.display = title.includes(input) ? "" : "none";
+        });
+    }
+
+    function filterEvents() {
+        let location = document.getElementById("locationFilter").value.toLowerCase();
+        let date = document.getElementById("dateFilter").value;
+        let rows = document.querySelectorAll("#eventsTable tr");
+
+        rows.forEach(row => {
+            let eventLocation = row.cells[2].innerText.toLowerCase();
+            let eventDate = row.cells[1].innerText;
+
+            let matchLocation = location === "" || eventLocation.includes(location);
+            let matchDate = date === "" || eventDate === date;
+
+            row.style.display = matchLocation && matchDate ? "" : "none";
+        });
+    }
+</script>
+
+{% endblock %}

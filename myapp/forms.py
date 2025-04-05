@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, UserProfile, OrganizationProfile, Idea
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True)
@@ -78,4 +78,13 @@ class IdeaForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4, "placeholder": "Describe your idea..."}),
             "status": forms.Select(choices=Idea._meta.get_field("status").choices),
+        }
+
+
+class PostEventForm(forms.ModelForm):
+    class Meta:
+        model = PostEvent
+        fields = ["title", "description", "date", "location", "image"]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
         }

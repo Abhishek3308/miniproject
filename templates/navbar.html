@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Ideavate{% endblock %}</title>
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
@@ -25,7 +25,7 @@
     document.addEventListener("click", function(event) {
       let menu = document.getElementById('nav-links');
       let dropdown = document.getElementById('profile-dropdown');
-      
+
       if (!menu.contains(event.target) && !event.target.closest("button")) {
         menu.classList.add('hidden');
       }
@@ -52,32 +52,34 @@
           {% if user.is_authenticated %}
             {% if user.is_superuser %}
               <a href="{% url 'admin_dashboard' %}" class="nav-button">Admin Dashboard</a>
+
             {% elif user.is_user %}
               <a href="{% url 'home' %}" class="nav-button">Home</a>
               <a href="{% url 'idea_list' %}" class="nav-button">Explore Ideas</a>
               <a href="{% url 'post_idea' %}" class="nav-button">Post An Idea</a>
+              <a href="{% url 'events' %}" class="nav-button">Events</a>
               <a href="{% url 'investors' %}" class="nav-button">Investors</a>
 
               <div class="relative flex items-center space-x-2">
                 <span class="text-white font-medium">{{ user.username }}</span>
                 <button onclick="toggleDropdown(event)" class="focus:outline-none">
-                  {% if user.is_organization %}
-                  <img 
-                      src="{% if user.organization_profile.profile_picture %}{{ user.organization_profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}"
-                      alt="Profile" 
+                  {% if user.user_profile and user.user_profile.profile_picture %}
+                    <img 
+                      src="{{ user.user_profile.profile_picture.url }}"
+                      alt="Profile"
                       class="h-8 w-8 rounded-full border-2 border-white object-cover"
-                  />
-                    {% elif user.is_user %}
-                        <img 
-                            src="{% if user.user_profile.profile_picture %}{{ user.user_profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}"
-                            alt="Profile" 
-                            class="h-8 w-8 rounded-full border-2 border-white object-cover"
-                        />
-                    {% endif %}
-
+                    />
+                  {% else %}
+                    <img 
+                      src="{% static 'images/default-profile.png' %}"
+                      alt="Default"
+                      class="h-8 w-8 rounded-full border-2 border-white object-cover"
+                    />
+                  {% endif %}
                 </button>
-                <div id="profile-dropdown" class="absolute right-0 mt-2 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
+                <div id="profile-dropdown" class="absolute right-0 mt-9 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
                   <a href="{% url 'user_profile' %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
+                  <a href="{% url 'your_ideas' %}" class="block px-4 py-2 hover:bg-gray-200">your ideas</a>
                   <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                 </div>
               </div>
@@ -85,18 +87,29 @@
             {% elif user.is_organization %}
               <a href="{% url 'home' %}" class="nav-button">Home</a>
               <a href="{% url 'idea_list' %}" class="nav-button">Explore Ideas</a>
+              <a href="{% url 'events' %}" class="nav-button">Events</a>
+              <a href="{% url 'post_event' %}" class="nav-button">Post Events</a>
 
               <div class="relative flex items-center space-x-2">
                 <span class="text-white font-medium">{{ user.username }}</span>
                 <button onclick="toggleDropdown(event)" class="focus:outline-none">
-                  <img 
-                    src="{% if user.organization_profile.profile_picture %}{{ user.organization_profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}"
-                    alt="Profile" 
-                    class="h-8 w-8 rounded-full border-2 border-white object-cover"
-                  />
+                  {% if user.organization_profile and user.organization_profile.profile_picture %}
+                    <img 
+                      src="{{ user.organization_profile.profile_picture.url }}"
+                      alt="Company"
+                      class="h-8 w-8 rounded-full border-2 border-white object-cover"
+                    />
+                  {% else %}
+                    <img 
+                      src="{% static 'images/default-profile.png' %}"
+                      alt="Default"
+                      class="h-8 w-8 rounded-full border-2 border-white object-cover"
+                    />
+                  {% endif %}
                 </button>
-                <div id="profile-dropdown" class="absolute right-0 mt-2 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
+                <div id="profile-dropdown" class="absolute right-0 mt-10 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
                   <a href="{% url 'organization_profile' %}" class="block px-4 py-2 hover:bg-gray-200">Company Profile</a>
+                  <a href="{% url 'your_events' %}" class="block px-4 py-2 hover:bg-gray-200">your events</a>
                   <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                 </div>
               </div>

@@ -1,0 +1,51 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}Events - Ideavate{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-16">
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">Upcoming Events</h1>
+
+    <!-- Search & Filter Section -->
+    <form method="GET" action="{% url 'events' %}" class="flex flex-wrap justify-center gap-4 mb-8">
+        <input type="text" name="q" placeholder="Search events..." value="{{ request.GET.q }}"
+            class="border border-gray-300 rounded-md px-4 py-2 w-64 focus:ring-2 focus:ring-blue-500">
+        
+        <select name="location" class="border border-gray-300 rounded-md px-4 py-2 w-48 focus:ring-2 focus:ring-blue-500">
+            <option value="">All Locations</option>
+            {% for loc in locations %}
+                <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>{{ loc }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="date" name="date" value="{{ request.GET.date }}"
+            class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500">
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+            🔍 Search
+        </button>
+    </form>
+
+    {% if events %}
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for event in events %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
+            <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-48 object-cover">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-gray-900">{{ event.title }}</h3>
+                <p class="text-gray-600 mt-2">{{ event.description }}</p>
+                <p class="text-blue-600 font-medium mt-2">📅 {{ event.date }}</p>
+                <p class="text-gray-500 text-sm">📍 {{ event.location }}</p>
+                <a href="{% url 'event_details' event.id %}" class="block mt-4 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-center">
+                    View Details
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-gray-600">No upcoming events available.</p>
+    {% endif %}
+</div>
+{% endblock %}

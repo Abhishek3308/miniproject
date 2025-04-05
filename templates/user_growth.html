@@ -1,0 +1,112 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-center text-dark">📊 User Growth Dashboard</h1>
+
+    <!-- User Growth Summary Cards -->
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card border-primary shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Total Users</h5>
+                    <p class="display-5 text-dark">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-success">New Users This Month</h5>
+                    <p class="display-5 text-dark">{{ new_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">Organizations Registered</h5>
+                    <p class="display-5 text-dark">{{ total_organizations }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Growth Chart -->
+    <div class="card mt-4 shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title text-dark">📈 User Growth Over Time</h5>
+            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Registration Table -->
+    <div class="card mt-4 shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title text-dark">📋 Recent Users</h5>
+            <table class="table table-hover">
+                <thead class="bg-light text-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Date Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No recent users</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for User Growth -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('userGrowthChart').getContext('2d');
+    var userGrowthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates | safe }},
+            datasets: [{
+                label: 'Users Over Time',
+                data: {{ user_counts | safe }},
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' },
+                    ticks: { color: '#333' }
+                },
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { stepSize: 1, color: '#333' },
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

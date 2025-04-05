@@ -1,0 +1,36 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-body">
+            <!-- Event Title -->
+            <h1 class="text-center text-primary fw-bold">{{ event.title }}</h1>
+            
+            <!-- Event Meta Details -->
+            <div class="text-center text-muted mb-3">
+                <i class="fas fa-calendar-alt"></i> <strong>Date:</strong> {{ event.date|date:"F d, Y" }} |
+                <i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ event.location }}
+            </div>
+
+            <!-- Divider -->
+            <hr class="mb-4">
+
+            <!-- Event Description -->
+            <div class="text-justify px-4">
+                <p class="lead">{{ event.description }}</p>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center mt-4">
+                <a href="{% url 'events' %}" class="btn btn-outline-primary px-4">
+                    <i class="fas fa-arrow-left"></i> Back to Events
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FontAwesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock %}

@@ -4,7 +4,7 @@
 <div class="flex justify-center items-center min-h-screen bg-gray-50">
     <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
         <!-- Form Header -->
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">🚀 Post Your Idea</h2>
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">✏️ Edit Your Idea</h2>
 
         <!-- Form -->
         <form method="POST" class="space-y-5">
@@ -22,15 +22,15 @@
 
             <!-- Submit Button -->
             <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md">
-                🚀 Submit Idea
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition duration-300 shadow-md">
+                💾 Save Changes
             </button>
         </form>
 
         <!-- Back Link -->
         <div class="text-center mt-5">
-            <a href="{% url 'home' %}" class="text-blue-600 font-medium hover:underline">
-                ⬅️ Back to Home
+            <a href="{% url 'your_ideas' %}" class="text-blue-600 font-medium hover:underline">
+                ⬅️ Cancel and Go Back
             </a>
         </div>
     </div>

@@ -1,6 +1,10 @@
 from django.contrib.auth.models import AbstractUser,Group,Permission
 from django.db import models
 
+
+
+
+
 class User(AbstractUser):
     is_user = models.BooleanField(default=False)
     is_organization = models.BooleanField(default=False)
@@ -33,11 +37,11 @@ class OrganizationProfile(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     linkedin = models.URLField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
+    profile_picture = models.ImageField(upload_to="organization_profiles/", blank=True, null=True)
 
     class Meta:
-        verbose_name = "Organization Profile"
-        verbose_name_plural = "Organization Profiles"
+        verbose_name = "Organization_Profile"
+        verbose_name_plural = "Organization_Profiles"
 
     def __str__(self):
         return self.company_name
@@ -65,5 +69,18 @@ class Idea(models.Model):
 
     def __str__(self):
         return f"{self.idea_name} - {self.user.username}"
+    
+
+class PostEvent(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    date = models.DateField()
+    location = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="event_images/", blank=True, null=True)  # ✅ Add this field
+
+    def __str__(self):
+        return f"{self.title} by {self.user.username}"
+
 
 
