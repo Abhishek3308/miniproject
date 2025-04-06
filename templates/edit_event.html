@@ -1,0 +1,49 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen bg-gray-50">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">✏️ Edit Event</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="block text-gray-700 font-semibold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition duration-300 shadow-md">
+                ✅ Update Event
+            </button>
+        </form>
+
+        <div class="text-center mt-5">
+            <a href="{% url 'your_events' %}" class="text-blue-600 font-medium hover:underline">
+                ⬅️ Back to Your Events
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    input, textarea, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 4px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: border 0.3s;
+    }
+    input:focus, textarea:focus, select:focus {
+        border-color: #22c55e;
+        outline: none;
+        box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+    }
+</style>
+{% endblock %}

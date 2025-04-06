@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent 
 from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm
 from django.urls import path
 from django.template.response import TemplateResponse
@@ -356,8 +356,24 @@ def your_ideas_view(request):
 
 @login_required(login_url='signin')
 def your_events_view(request):
-    user_ideas = Idea.objects.filter(user=request.user).order_by('-created_at')  # or '-id'
-    return render(request, 'your_events.html', {'ideas': user_ideas})
+    user_events = PostEvent.objects.filter(user=request.user).order_by('-date')
+    return render(request, 'your_events.html', {'events': user_events})
+
+
+
+@login_required
+def edit_event(request, event_id):
+    event = get_object_or_404(PostEvent, id=event_id, user=request.user)
+    if request.method == 'POST':
+        form = PostEventForm(request.POST, request.FILES, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect('your_events')
+    else:
+        form = PostEventForm(instance=event)
+    return render(request, 'edit_event.html', {'form': form})
+
+
 
 
 from django.utils.timezone import now

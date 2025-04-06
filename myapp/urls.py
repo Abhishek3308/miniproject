@@ -46,6 +46,7 @@ urlpatterns = [
     path('your-ideas/', views.your_ideas_view, name='your_ideas'),
     path('admin_dashboard/ideas/<int:idea_id>/delete/', views.admin_delete_idea, name='admin_delete_idea'),
     path('your-events/', views.your_events_view, name='your_events'),
+    path('edit-event/<int:event_id>/', views.edit_event, name='edit_event'),
 
 
 ]
