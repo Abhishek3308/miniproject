@@ -1,37 +1,58 @@
 {% extends "navbar.html" %}
 
 {% block content %}
-<div class="flex justify-center items-center min-h-screen bg-gray-50">
-    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
-        <!-- Form Header -->
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">🚀 Post Your Idea</h2>
 
-        <!-- Form -->
-        <form method="POST" class="space-y-5">
-            {% csrf_token %}
+<div class="relative bg-gray-50 min-h-screen">
 
-            {% for field in form %}
-                <div {% if field.name == "collaboration_option" %}class="text-left flex justify-start"{% endif %}>
+    <!-- Success Message Popup -->
+    {% if messages %}
+    <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40">
+        {% for message in messages %}
+        <div class="bg-green-500 text-white font-semibold px-6 py-3 rounded-lg shadow-md animate-fade-in-out">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(function () {
+            const alert = document.querySelector('.absolute');
+            if (alert) alert.style.display = 'none';
+        }, 3000);
+    </script>
+    {% endif %}
+
+    <div class="flex justify-center items-center pt-20">
+        <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
+            <!-- Form Header -->
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">🚀 Post Your Idea</h2>
+
+            <!-- Form -->
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                {% for field in form %}
+                <div>
                     <label class="block text-gray-700 font-semibold">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
                     {% endif %}
                 </div>
-            {% endfor %}
+                {% endfor %}
 
-            <!-- Submit Button -->
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md">
-                🚀 Submit Idea
-            </button>
-        </form>
+                <!-- Submit Button -->
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md">
+                    🚀 Submit Idea
+                </button>
+            </form>
 
-        <!-- Back Link -->
-        <div class="text-center mt-5">
-            <a href="{% url 'home' %}" class="text-blue-600 font-medium hover:underline">
-                ⬅️ Back to Home
-            </a>
+            <!-- Back Link -->
+            <div class="text-center mt-5">
+                <a href="{% url 'home' %}" class="text-blue-600 font-medium hover:underline">
+                    ⬅️ Back to Home
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -46,10 +67,37 @@
         border-radius: 8px;
         transition: border 0.3s;
     }
+
     input:focus, textarea:focus, select:focus {
         border-color: #3b82f6;
         outline: none;
         box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
     }
+
+    @keyframes fade-in-out {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        10% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+
+    .animate-fade-in-out {
+        animation: fade-in-out 3s ease-in-out forwards;
+    }
 </style>
+
 {% endblock %}

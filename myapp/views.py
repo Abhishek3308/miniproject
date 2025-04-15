@@ -3,8 +3,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent 
-from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow 
+from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow
 from django.urls import path
 from django.template.response import TemplateResponse
 
@@ -83,18 +83,23 @@ def user_profile(request):
         form = UserProfileForm(instance=profile)
     return render(request, "user_profile.html", {"form": form})
 
+
+@login_required(login_url='signin') 
 def edit_userprofile(request):
+    # Get or create the user's profile
     profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        form = UserProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
         if form.is_valid():
             form.save()
-            return redirect('user_profile')
+            return redirect('user_profile')  # Replace with your desired redirect after saving
     else:
-        form = UserProfileForm(instance=profile)
+        form = UserProfileForm(instance=profile, user=request.user)
 
     return render(request, 'edit_profile.html', {'form': form})
+
+
 
 # Organization Profile (View & Update)
 @login_required(login_url='signin')
@@ -150,10 +155,13 @@ def post_idea(request):
             idea = form.save(commit=False)
             idea.user = request.user
             idea.save()
+            messages.success(request, "Your idea has been successfully posted!")
             return redirect("post_idea")
     else:
         form = IdeaForm()
     return render(request, "post_idea.html", {"form": form})
+
+
 
 # Idea Detail Page
 @login_required(login_url='signin')
@@ -404,4 +412,73 @@ def user_growth_view(request):
         'recent_users': recent_users,
         'dates': dates,
         'user_counts': user_counts,
+    })
+
+
+@login_required
+def view_profile(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    
+    # Check if the logged-in user is following the profile
+    is_following = Follow.objects.filter(follower=request.user, following=profile_user).exists()
+
+    # Get all ideas posted by the user
+    ideas = Idea.objects.filter(user=profile_user)
+
+    # Count the followers and following
+    follower_count = Follow.objects.filter(following=profile_user).count()
+    following_count = Follow.objects.filter(follower=profile_user).count()
+
+    return render(request, 'profile_detail.html', {
+        'profile_user': profile_user,
+        'is_following': is_following,
+        'ideas': ideas,
+        'follower_count': follower_count,
+        'following_count': following_count,
+    })
+
+
+
+
+
+@login_required
+def follow_user(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    # Follow the user if not already following
+    if request.user != profile_user:
+        Follow.objects.get_or_create(follower=request.user, following=profile_user)
+    return redirect('view_profile', username=username)
+
+@login_required
+def unfollow_user(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    # Unfollow the user
+    if request.user != profile_user:
+        Follow.objects.filter(follower=request.user, following=profile_user).delete()
+    return redirect('view_profile', username=username)
+
+
+@login_required
+def view_followers(request, username):
+    profile_user = get_object_or_404(User, username=username)
+
+    # Get all followers of the profile_user
+    followers = Follow.objects.filter(following=profile_user).select_related('follower')
+
+    return render(request, 'followers_list.html', {
+        'profile_user': profile_user,
+        'followers': followers
+    })
+
+
+@login_required
+def view_following(request, username):
+    profile_user = get_object_or_404(User, username=username)
+
+    # Get all users the profile_user is following
+    following = Follow.objects.filter(follower=profile_user).select_related('following')
+
+    return render(request, 'following_list.html', {
+        'profile_user': profile_user,
+        'following': following
     })

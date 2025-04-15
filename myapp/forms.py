@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent
+from django.contrib.auth import get_user_model
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True)
@@ -50,10 +51,22 @@ class SignInForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 
+User = get_user_model()
+
 class UserProfileForm(forms.ModelForm):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        label="Username",
+        widget=forms.TextInput(attrs={
+            "class": "w-3/4 px-3 py-1.5 border rounded-md text-sm",
+            "placeholder": "Enter your username"
+        })
+    )
+
     class Meta:
         model = UserProfile
-        fields = ["profession", "expertise", "bio", "resume", "profile_picture", "linkedin", "portfolio_website"]
+        fields = ["username", "profession", "expertise", "bio", "resume", "profile_picture", "linkedin", "portfolio_website"]
         widgets = {
             "profession": forms.TextInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Enter your profession"}),
             "expertise": forms.TextInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Your expertise areas"}),
@@ -64,6 +77,23 @@ class UserProfileForm(forms.ModelForm):
             "portfolio_website": forms.URLInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Your portfolio website"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        if self.user:
+            self.fields['username'].initial = self.user.username
+
+    def save(self, commit=True):
+        profile = super(UserProfileForm, self).save(commit=False)
+        if self.user:
+            self.user.username = self.cleaned_data['username']
+            if commit:
+                self.user.save()
+        if commit:
+            profile.save()
+        return profile
+    
+    
 # Organization Profile Form
 class OrganizationProfileForm(forms.ModelForm):
     class Meta:
@@ -88,3 +118,12 @@ class PostEventForm(forms.ModelForm):
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}),
         }
+
+
+class FollowForm(forms.ModelForm):
+    class Meta:
+        model = Follow
+        fields = ['following','follower']
+
+    def __init__(self, *args, **kwargs):
+        super(FollowForm, self).__init__(*args, **kwargs)

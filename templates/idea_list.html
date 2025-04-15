@@ -17,15 +17,17 @@
         <div class="bg-white rounded-lg shadow mb-6 idea-item">
           <!-- Post Header -->
           <div class="flex items-center p-4 border-b border-gray-200">
-            {% if idea.user.user_profile.profile_picture %}
-              <img src="{{ idea.user.user_profile.profile_picture.url }}" class="w-10 h-10 rounded-full mr-3">
-            {% else %}
-              <img src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full mr-3">
-            {% endif %}
-            <div>
-              <h2 class="font-semibold text-gray-800">{{ idea.user.username }}</h2>
-              <p class="text-xs text-gray-500">{{ idea.created_at|date:"M d, Y H:i" }}</p>
-            </div>
+            <a href="{% url 'view_profile' idea.user.username %}" class="flex items-center">
+              {% if idea.user.user_profile.profile_picture %}
+                <img src="{{ idea.user.user_profile.profile_picture.url }}" class="w-10 h-10 rounded-full mr-3">
+              {% else %}
+                <img src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full mr-3">
+              {% endif %}
+              <div>
+                <h2 class="font-semibold text-gray-800 hover:underline">{{ idea.user.username }}</h2>
+                <p class="text-xs text-gray-500">{{ idea.created_at|date:"M d, Y H:i" }}</p>
+              </div>
+            </a>
           </div>
           <!-- Post Content -->
           <div class="p-4">

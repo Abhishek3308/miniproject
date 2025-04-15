@@ -1,93 +1,109 @@
 {% extends "navbar.html" %}
+{% load widget_tweaks %}
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<section class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 pt-20">
+<section class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 pt-20 px-4">
   <div class="w-full max-w-md p-8 bg-white bg-opacity-90 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-200">
+    
+    <!-- Header -->
     <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">Create an Account</h2>
     <p class="text-center text-gray-600 mb-6">Join Ideavate to share your ideas</p>
     
+    <!-- Error Display -->
     {% if form.errors %}
-      <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-        <ul>
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li>{{ field.label }}: {{ error }}</li>
-            {% endfor %}
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+      <ul class="list-disc pl-5 space-y-1">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
           {% endfor %}
-          {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
     {% endif %}
-    
-    <form method="POST" class="mt-9 space-y-5">
+
+    <!-- Signup Form -->
+    <form method="POST" class="space-y-5">
       {% csrf_token %}
-      
+
+      <!-- Username -->
       <div class="relative">
-        <i class="fas fa-user absolute left-3 top-3 text-gray-500"></i>
-        {{ form.username }}
+        <i class="fas fa-user absolute left-3 top-3.5 text-gray-400"></i>
+        {{ form.username|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
       </div>
-      
+
+      <!-- Email -->
       <div class="relative">
-        <i class="fas fa-envelope absolute left-3 top-3 text-gray-500"></i>
-        {{ form.email }}
+        <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
+        {{ form.email|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
       </div>
-      
+
+      <!-- Password -->
       <div class="relative">
-        <i class="fas fa-lock absolute left-3 top-3 text-gray-500"></i>
-        {{ form.password1 }}
+        <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+        {{ form.password1|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
       </div>
-      
+
+      <!-- Confirm Password -->
       <div class="relative">
-        <i class="fas fa-lock absolute left-3 top-3 text-gray-500"></i>
-        {{ form.password2 }}
+        <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+        {{ form.password2|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
       </div>
-      
-      <!-- User Type Selection -->
+
+      <!-- User Type -->
       <div>
         <label class="block text-gray-700 font-medium mb-1">Sign Up As</label>
-        {{ form.user_type }}
+        {{ form.user_type|add_class:"py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
       </div>
-      
-      <!-- Organization-Specific Fields (Hidden by Default) -->
-      <div id="organizationFields" class="hidden space-y-3">
+
+      <!-- Organization-Specific Fields -->
+      <div id="organizationFields" class="hidden space-y-4">
         <div>
           <label class="block text-gray-700 font-medium mb-1">Company Name</label>
-          {{ form.company_name }}
+          {{ form.company_name|add_class:"py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
         </div>
         <div>
           <label class="block text-gray-700 font-medium mb-1">Job Title</label>
-          {{ form.job_title }}
+          {{ form.job_title|add_class:"py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
         </div>
       </div>
-      
-      <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+
+      <!-- Submit Button -->
+      <button type="submit"
+        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
         Sign Up
       </button>
     </form>
-    
-    <p class="mt-6 text-center text-gray-700">
+
+    <!-- Already have account -->
+    <p class="mt-6 text-center text-gray-700 text-sm">
       Already have an account?
       <a href="{% url 'signin' %}" class="text-blue-600 font-medium hover:underline">Sign In</a>
     </p>
   </div>
 </section>
 
-<!-- FontAwesome for icons -->
+<!-- FontAwesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+<!-- Toggle Organization Fields -->
 <script>
-  // Toggle organization-specific fields based on user type selection
   const userTypeSelect = document.getElementById("id_user_type");
   const organizationFields = document.getElementById("organizationFields");
 
-  userTypeSelect.addEventListener("change", function () {
-    if (this.value === "organization") {
+  function toggleFields() {
+    if (userTypeSelect.value === "organization") {
       organizationFields.classList.remove("hidden");
     } else {
       organizationFields.classList.add("hidden");
     }
-  });
+  }
+
+  userTypeSelect.addEventListener("change", toggleFields);
+  document.addEventListener("DOMContentLoaded", toggleFields);
 </script>
 {% endblock %}
