@@ -70,10 +70,13 @@ def logout_view(request):
     messages.info(request, "You have been logged out.")
     return redirect("signin")
 
+
 # User Profile (View & Update)
 @login_required(login_url='signin')
 def user_profile(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    # Handle form submission
     if request.method == "POST":
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
@@ -81,7 +84,20 @@ def user_profile(request):
             return redirect("user_profile")
     else:
         form = UserProfileForm(instance=profile)
-    return render(request, "user_profile.html", {"form": form})
+
+    # ✅ Get follower/following counts
+    follower_count = Follow.objects.filter(following=request.user).count()
+    following_count = Follow.objects.filter(follower=request.user).count()
+
+    # ✅ Get user's ideas
+    ideas = Idea.objects.filter(user=request.user)  # or use creator=request.user if that’s the field
+
+    return render(request, "user_profile.html", {
+        "form": form,
+        "follower_count": follower_count,
+        "following_count": following_count,
+        "ideas": ideas,
+    })
 
 
 @login_required(login_url='signin') 

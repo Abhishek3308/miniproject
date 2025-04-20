@@ -14,9 +14,22 @@
         <img src="https://via.placeholder.com/100" class="w-28 h-28 rounded-full object-cover shadow-md">
       {% endif %}
 
-      <div class="text-center sm:text-left mt-4 sm:mt-0">
-        <h1 class="text-3xl font-bold text-gray-800">{{ profile_user.username }}</h1>
-        <p class="text-gray-600 mt-2">{{ profile_user.user_profile.bio|default:"No bio available." }}</p>
+      <div class="text-center sm:text-left mt-4 sm:mt-0 w-full">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">{{ profile_user.username }}</h1>
+            <p class="text-gray-600 mt-2">{{ profile_user.user_profile.bio|default:"No bio available." }}</p>
+          </div>
+
+          <!-- Show Edit Profile Button only to owner -->
+          {% if request.user == profile_user %}
+            <div class="mt-4 sm:mt-0">
+              <a href="{% url 'edit_userprofile' %}" class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+                Edit Profile
+              </a>
+            </div>
+          {% endif %}
+        </div>
 
         <!-- Follower Count -->
         <div class="flex justify-center sm:justify-start space-x-4 mt-4 text-sm text-gray-600">
