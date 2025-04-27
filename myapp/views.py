@@ -7,6 +7,7 @@ from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Fol
 from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow
 from django.urls import path
 from django.template.response import TemplateResponse
+from rapidfuzz import fuzz
 
 
 # Home Page (Shows All Ideas)
@@ -168,15 +169,32 @@ def post_idea(request):
     if request.method == "POST":
         form = IdeaForm(request.POST)
         if form.is_valid():
+            # Custom duplicate check in view (optional - you already do this in form)
+            new_idea_name = form.cleaned_data.get('idea_name', '').strip()
+            new_description = form.cleaned_data.get('description', '').strip()
+
+            for existing_idea in Idea.objects.all():
+                name_similarity = fuzz.token_sort_ratio(new_idea_name, existing_idea.idea_name)
+                desc_similarity = fuzz.token_sort_ratio(new_description, existing_idea.description)
+                
+                if name_similarity > 85 or desc_similarity > 80:
+                    messages.error(request, "🚫 An idea with a similar name or description already exists.")
+                    return redirect("post_idea")
+
             idea = form.save(commit=False)
             idea.user = request.user
             idea.save()
-            messages.success(request, "Your idea has been successfully posted!")
+
+            messages.success(request, "✅ Your idea has been successfully posted!")
             return redirect("post_idea")
+        else:
+            # 👇 Extract error message from form and send to messages
+            for error in form.non_field_errors():
+                messages.error(request, f"🚫 {error}")
     else:
         form = IdeaForm()
-    return render(request, "post_idea.html", {"form": form})
 
+    return render(request, "post_idea.html", {"form": form})
 
 
 # Idea Detail Page
@@ -232,13 +250,13 @@ def idea_list(request):
 def investors(request):
     return render(request, "investors.html")
 
-def is_admin(user):
-    return user.is_authenticated and user.is_superuser
+# def is_admin(user):
+#     return user.is_authenticated and user.is_superuser
 
-@user_passes_test(is_admin)
-def admin_dashboard(request):
-    # Admin-specific functionality
-    return render(request, 'admin_dashboard.html')
+# @user_passes_test(is_admin)
+# def admin_dashboard(request):
+#     # Admin-specific functionality
+#     return render(request, 'admin_dashboard.html')
 
 
 
@@ -273,23 +291,23 @@ def admin_dashboard(request):
     }
     return render(request, "admin_dashboard.html", context)
 
-@user_passes_test(is_admin)
+@user_passes_test(is_admin, login_url="signin")
 def admin_users(request):
     users = User.objects.filter(is_user=True)
     return render(request, "admin_users.html", {"users": users})
 
-@user_passes_test(is_admin)
+@user_passes_test(is_admin, login_url="signin")
 def admin_organizations(request):
     organizations = User.objects.filter(is_organization=True)
     return render(request, "admin_organizations.html", {"organizations": organizations})
 
-@user_passes_test(is_admin)
+@user_passes_test(is_admin, login_url="signin")
 def admin_ideas(request):
     ideas = Idea.objects.all()
     return render(request, "admin_ideas.html", {"ideas": ideas})
 
 
-@user_passes_test(is_admin)
+@user_passes_test(is_admin, login_url="signin")
 def admin_delete_idea(request, idea_id):
     idea = get_object_or_404(Idea, id=idea_id)
     idea.delete()
@@ -297,17 +315,27 @@ def admin_delete_idea(request, idea_id):
 
 
 
+@user_passes_test(is_admin, login_url="signin")
+def admin_events(request):
+    events = PostEvent.objects.all()  # Fetch all events
+    return render(request, "admin_events.html", {"events": events})
+
+
+
+@login_required(login_url='signin')
 def search_ideas(request):
     query = request.GET.get('q', '')
     ideas = Idea.objects.filter(idea_name__icontains=query) if query else Idea.objects.all()
     return render(request, 'partials.html', {'ideas': ideas})
 
 
+
+
 def notifications_view(request):
     return render(request, 'notifications.html')
 
 
-@login_required  # Ensures only logged-in users can post events
+@login_required(login_url='signin')  # Ensures only logged-in users can post events
 def post_event_view(request):
     if not request.user.is_organization:
         raise PermissionDenied("Only organizations can post events.")  # Restrict to organizations
@@ -324,31 +352,50 @@ def post_event_view(request):
 
     return render(request, "post_event.html", {"form": form})
 
+
+
+@login_required(login_url='signin')
 def events_view(request):
     events = PostEvent.objects.filter(user__is_organization=True)  # Fetch only organization-posted events
     return render(request, "events.html", {"events": events})
 
 
-def admin_events(request):
-    events = PostEvent.objects.all()  # Fetch all events
-    return render(request, "admin_events.html", {"events": events})
 
-
-
-
-def admin_trending_ideas(request):
-    trending_ideas = Idea.objects.order_by("-likes")[:10]  # Sort by likes and get top 10
-    return render(request, "admin_trending_ideas.html", {"trending_ideas": trending_ideas})
-
-
+@login_required(login_url='signin')
 def event_details(request, event_id):
     event = get_object_or_404(PostEvent, id=event_id)  # Correct model name
     return render(request, 'event_details.html', {'event': event})
 
+
+
+@user_passes_test(is_admin)
+def admin_delete_event(request, event_id):
+    event = get_object_or_404(PostEvent, id=event_id)  # <-- Corrected here!
+
+    if request.method == 'POST':
+        event.delete()
+        messages.success(request, "✅ Event deleted successfully by Admin.")
+        return redirect('admin_events')  # make sure this URL name exists
+    else:
+        messages.error(request, "🚫 Invalid request method.")
+        return redirect('admin_events')
+
+
+
+@login_required(login_url='signin')
 def delete_event(request, event_id):
-    event = get_object_or_404(event, id=event_id)
-    event.delete()
-    return redirect('admin_events')
+    event = get_object_or_404(PostEvent, id=event_id)
+
+    if request.method == "POST":
+        event.delete()
+        messages.success(request, "✅ Event deleted successfully!")
+    
+    return redirect('your_events')  # Always redirect, don't render here
+
+
+
+
+
 
 
 
@@ -356,7 +403,7 @@ def delete_event(request, event_id):
 #     organization = get_object_or_404(OrganizationProfile, id=id)  # Ensure correct model
 #     return render(request, 'organization_detail.html', {'organization': organization})
 
-
+@user_passes_test(is_admin, login_url="signin")
 def delete_organization(request, id):
     organization = get_object_or_404(OrganizationProfile, id=id)
     organization.delete()
@@ -364,6 +411,7 @@ def delete_organization(request, id):
 
 
 
+@user_passes_test(is_admin, login_url="signin")
 def delete_user(request, id):
     user = get_object_or_404(User, id=id)
     user.delete()
@@ -380,12 +428,14 @@ def your_ideas_view(request):
 
 @login_required(login_url='signin')
 def your_events_view(request):
-    user_events = PostEvent.objects.filter(user=request.user).order_by('-date')
-    return render(request, 'your_events.html', {'events': user_events})
+    events = PostEvent.objects.filter(user=request.user)
+    return render(request, 'your_events.html', {'events': events})
 
 
 
-@login_required
+
+
+@login_required(login_url='signin')
 def edit_event(request, event_id):
     event = get_object_or_404(PostEvent, id=event_id, user=request.user)
     if request.method == 'POST':
@@ -404,6 +454,8 @@ from django.utils.timezone import now
 from datetime import timedelta
 from collections import Counter
 
+
+@user_passes_test(is_admin, login_url="signin")
 def user_growth_view(request):
     # Total users and organizations
     total_users = User.objects.count()
@@ -431,7 +483,7 @@ def user_growth_view(request):
     })
 
 
-@login_required
+@login_required(login_url='signin')
 def view_profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     
@@ -457,7 +509,7 @@ def view_profile(request, username):
 
 
 
-@login_required
+@login_required(login_url='signin')
 def follow_user(request, username):
     profile_user = get_object_or_404(User, username=username)
     # Follow the user if not already following
@@ -465,7 +517,8 @@ def follow_user(request, username):
         Follow.objects.get_or_create(follower=request.user, following=profile_user)
     return redirect('view_profile', username=username)
 
-@login_required
+
+@login_required(login_url='signin')
 def unfollow_user(request, username):
     profile_user = get_object_or_404(User, username=username)
     # Unfollow the user
@@ -474,7 +527,8 @@ def unfollow_user(request, username):
     return redirect('view_profile', username=username)
 
 
-@login_required
+
+@login_required(login_url='signin')
 def view_followers(request, username):
     profile_user = get_object_or_404(User, username=username)
 
@@ -487,7 +541,8 @@ def view_followers(request, username):
     })
 
 
-@login_required
+
+@login_required(login_url='signin')
 def view_following(request, username):
     profile_user = get_object_or_404(User, username=username)
 

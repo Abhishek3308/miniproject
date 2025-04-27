@@ -30,11 +30,11 @@
     {% if events %}
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {% for event in events %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow flex flex-col">
             <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-48 object-cover">
-            <div class="p-6">
+            <div class="p-6 flex flex-col justify-between flex-grow">
                 <h3 class="text-xl font-semibold text-gray-900">{{ event.title }}</h3>
-                <p class="text-gray-600 mt-2">{{ event.description }}</p>
+                <p class="text-gray-600 mt-2 flex-grow">{{ event.description }}</p>
                 <p class="text-blue-600 font-medium mt-2">📅 {{ event.date }}</p>
                 <p class="text-gray-500 text-sm">📍 {{ event.location }}</p>
                 <a href="{% url 'event_details' event.id %}" class="block mt-4 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-center">

@@ -4,20 +4,28 @@
 
 <div class="relative bg-gray-50 min-h-screen">
 
-    <!-- Success Message Popup -->
-    {% if messages %}
-    <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40">
-        {% for message in messages %}
-        <div class="bg-green-500 text-white font-semibold px-6 py-3 rounded-lg shadow-md animate-fade-in-out">
-            {{ message }}
+    <!-- Message Popup (Success, Error, etc.) -->
+            {% if messages %}
+        <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40 space-y-2">
+            {% for message in messages %}
+            <div class="
+                {% if message.tags == 'error' %}
+                    bg-red-500
+                {% elif message.tags == 'success' %}
+                    bg-green-500
+                {% else %}
+                    bg-blue-500
+                {% endif %}
+                text-white font-semibold px-6 py-3 rounded-lg shadow-md animate-fade-in-out">
+                {{ message }}
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 
     <script>
         setTimeout(function () {
-            const alert = document.querySelector('.absolute');
-            if (alert) alert.style.display = 'none';
+            const alerts = document.querySelectorAll('.animate-fade-in-out');
+            alerts.forEach(alert => alert.style.display = 'none');
         }, 3000);
     </script>
     {% endif %}
@@ -79,16 +87,13 @@
             opacity: 0;
             transform: translateY(-10px);
         }
-
         10% {
             opacity: 1;
             transform: translateY(0);
         }
-
         90% {
             opacity: 1;
         }
-
         100% {
             opacity: 0;
             transform: translateY(-10px);

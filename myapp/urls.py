@@ -32,9 +32,8 @@ urlpatterns = [
     path("admin_dashboard/users/",views. admin_users, name="admin_users"),
     path("admin_dashboard/organizations/",views. admin_organizations, name="admin_organizations"),
     path("admin_dashboard/ideas/",views. admin_ideas, name="admin_ideas"),
-    path("admin/events/",views.admin_events, name="admin_events"),
-    path("admin/trending-ideas/",views.admin_trending_ideas, name="admin_trending_ideas"),
-    path("dashboard/events/", views.admin_events, name="admin_events"),
+    path("admin_dashboard/events/",views.admin_events, name="admin_events"),
+    path("dashboard/events/", views.admin_events, name="admin_delete_events"),
     
     path('notifications/',views.notifications_view, name='notifications'),
     path('post-event/',views.post_event_view, name='post_event'),

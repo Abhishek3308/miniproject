@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow
+from rapidfuzz import fuzz
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True)
@@ -104,11 +105,42 @@ class OrganizationProfileForm(forms.ModelForm):
 class IdeaForm(forms.ModelForm):
     class Meta:
         model = Idea
-        fields = ["idea_name", "description", "category", "funding_goal", "estimated_investment", "collaboration", "status"]
+        fields = [
+            "idea_name", 
+            "description", 
+            "category", 
+            "funding_goal", 
+            "estimated_investment", 
+            "collaboration", 
+            "status"
+        ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4, "placeholder": "Describe your idea..."}),
             "status": forms.Select(choices=Idea._meta.get_field("status").choices),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        idea_name = cleaned_data.get("idea_name")
+        description = cleaned_data.get("description")
+
+        if not idea_name or not description:
+            return cleaned_data  # Let Django handle the required field errors
+
+        # Get all existing ideas except the current one if editing
+        existing_ideas = Idea.objects.exclude(pk=self.instance.pk)
+
+        for idea in existing_ideas:
+            name_similarity = fuzz.ratio(idea_name.lower(), idea.idea_name.lower())
+            desc_similarity = fuzz.ratio(description.lower(), idea.description.lower())
+
+            # You can adjust the threshold (e.g., 85 for name, 90 for description)
+            if name_similarity > 85 or desc_similarity > 90:
+                raise forms.ValidationError(
+                    "Your idea seems too similar to an existing one. Please try to make it more unique."
+                )
+
+        return cleaned_data
 
 
 class PostEventForm(forms.ModelForm):
