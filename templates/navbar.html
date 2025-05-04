@@ -78,7 +78,7 @@
                   {% endif %}
                 </button>
                 <div id="profile-dropdown" class="absolute right-0 mt-9 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
-                  <a href="{% url 'user_profile' %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
+                  <a href="{% url 'user_profile' username=user.username %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
                   <a href="{% url 'your_ideas' %}" class="block px-4 py-2 hover:bg-gray-200">your ideas</a>
                   <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                 </div>
@@ -108,7 +108,7 @@
                   {% endif %}
                 </button>
                 <div id="profile-dropdown" class="absolute right-0 mt-10 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
-                  <a href="{% url 'organization_profile' %}" class="block px-4 py-2 hover:bg-gray-200">Company Profile</a>
+                  <a href="{% url 'organization_profile' username=user.username %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
                   <a href="{% url 'your_events' %}" class="block px-4 py-2 hover:bg-gray-200">your events</a>
                   <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                 </div>

@@ -1,0 +1,57 @@
+{% extends 'navbar.html' %}
+
+{% block title %}About Us - Ideavate{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-green-400 to-blue-600 text-white py-20 text-center">
+    <div class="container mx-auto">
+        <h1 class="text-5xl font-extrabold">About Us</h1>
+        <p class="mt-4 text-lg">At Ideavate, we believe that the future of innovation lies in the hands of creative individuals. Our platform helps turn ideas into reality.</p>
+    </div>
+</section>
+
+<section class="container mx-auto py-16 px-6 text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Our Mission</h2>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">We are dedicated to creating a space where innovators can showcase their ideas, collaborate with like-minded individuals, and connect with investors who can help make their vision come to life. Our mission is to empower creativity and fuel change across industries.</p>
+</section>
+
+<section class="bg-gray-100 py-16">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Meet the Team</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="https://via.placeholder.com/150" alt="Abhishek Manoj" class="w-32 h-32 rounded-full mx-auto mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">Abhishek Manoj</h3>
+                <p class="text-gray-600">Founder & CEO</p>
+                <p class="text-gray-500 mt-4">Abhishek is passionate about entrepreneurship and innovation. With years of experience, he is committed to building a platform that fosters creativity and collaboration.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="https://via.placeholder.com/150" alt="Sreelakshmi" class="w-32 h-32 rounded-full mx-auto mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">Sreelakshmi</h3>
+                <p class="text-gray-600">Chief Technology Officer</p>
+                <p class="text-gray-500 mt-4">Sreelakshmi brings cutting-edge technology solutions to Ideavate. With a background in software development, she leads the technical direction of the platform.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="https://via.placeholder.com/150" alt="Lakshmi" class="w-32 h-32 rounded-full mx-auto mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">Lakshmi</h3>
+                <p class="text-gray-600">Community Manager</p>
+                <p class="text-gray-500 mt-4">Lakshmi works tirelessly to create a supportive and engaging community for users. She helps ensure that all voices are heard and that collaboration thrives on Ideavate.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="https://via.placeholder.com/150" alt="Athira" class="w-32 h-32 rounded-full mx-auto mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">Athira</h3>
+                <p class="text-gray-600">Operations Lead</p>
+                <p class="text-gray-500 mt-4">Athira is responsible for ensuring smooth operations across the platform. She manages day-to-day activities and helps to keep the team aligned with the platform's goals.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-blue-900 text-white py-16 text-center">
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold">Join Us in Shaping the Future of Innovation</h2>
+        <p class="text-lg text-blue-100 mt-4">We are more than just a platform. We are a movement towards a world where ideas can thrive, grow, and impact the world. Become part of the Ideavate community today!</p>
+        <a href="{% url 'idea_list' %}" class="mt-6 inline-block px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition">Get Started</a>
+    </div>
+</section>
+{% endblock %}

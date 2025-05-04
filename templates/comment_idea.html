@@ -1,0 +1,107 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+    <!-- Page Header -->
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-blue-700 mb-2">Share Your Thoughts</h1>
+        <p class="text-gray-500">Post a comment or see what others are saying about this idea.</p>
+    </div>
+
+    <!-- Comment Form -->
+    <div class="bg-white shadow-lg rounded-xl p-8 max-w-2xl mx-auto border border-blue-100">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Leave a Comment</h2>
+        <form method="POST" action="{% url 'comment_idea' idea.id %}" class="space-y-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white font-medium py-2.5 px-6 rounded-lg hover:opacity-90 transition duration-300 w-full">
+                Submit Comment
+            </button>
+        </form>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="mt-14 max-w-3xl mx-auto">
+        <h2 class="text-3xl font-semibold text-gray-800 mb-6 border-b pb-2">Comments</h2>
+        {% for comment in comments %}
+        <div class="bg-white p-6 mb-6 rounded-xl shadow-sm border hover:shadow-md transition duration-300">
+            <div class="flex items-center mb-3">
+                <!-- Profile Picture Link -->
+                {% if comment.user.is_user %}
+                    <a href="{% url 'user_profile' comment.user.username %}">
+                {% elif comment.user.is_organization %}
+                    <a href="{% url 'organization_profile' comment.user.username %}">
+                {% endif %}
+                    {% if comment.user.is_user %}
+                        <!-- Check if the user has a profile picture -->
+                        {% if comment.user.user_profile.profile_picture %}
+                            <img src="{{ comment.user.user_profile.profile_picture.url }}" alt="{{ comment.user.username }}"
+                                 class="w-12 h-12 rounded-full border-2 border-blue-600 shadow-sm">
+                        {% else %}
+                            <img src="{% static 'default-avatar.png' %}" alt="{{ comment.user.username }}"
+                                 class="w-12 h-12 rounded-full border-2 border-gray-400 shadow-sm">
+                        {% endif %}
+                    {% elif comment.user.is_organization %}
+                        <!-- Check if the organization has a profile picture -->
+                        {% if comment.user.organization_profile.profile_picture %}
+                            <img src="{{ comment.user.organization_profile.profile_picture.url }}" alt="{{ comment.user.username }}"
+                                 class="w-12 h-12 rounded-full border-2 border-green-600 shadow-sm">
+                        {% else %}
+                            <img src="{% static 'default-avatar.png' %}" alt="{{ comment.user.username }}"
+                                 class="w-12 h-12 rounded-full border-2 border-gray-400 shadow-sm">
+                        {% endif %}
+                    {% endif %}
+                </a>
+
+                <!-- Username Link -->
+                <div class="ml-4">
+                    {% if comment.user.is_user %}
+                        <a href="{% url 'user_profile' comment.user.username %}" class="text-lg font-semibold text-gray-800 hover:underline">
+                    {% elif comment.user.is_organization %}
+                        <a href="{% url 'organization_profile' comment.user.username %}" class="text-lg font-semibold text-gray-800 hover:underline">
+                    {% endif %}
+                        {{ comment.user.username }}
+                    </a>
+                    <p class="text-sm text-gray-500">{{ comment.created_at|date:"M d, Y • H:i" }}</p>
+                </div>
+            </div>
+
+            <p class="text-gray-700 text-base leading-relaxed" id="comment-content-{{ comment.id }}">{{ comment.content }}</p>
+
+            {% if comment.user == user %}
+            <!-- Edit Button -->
+            <button class="text-blue-600 mt-2" id="edit-button-{{ comment.id }}" onclick="toggleEditForm({{ comment.id }})">Edit</button>
+
+            <!-- Edit Comment Form (Hidden initially) -->
+            <form method="POST" action="{% url 'edit_comment' comment.id %}" class="hidden mt-4" id="edit-form-{{ comment.id }}">
+                {% csrf_token %}
+                <textarea name="content" class="w-full p-2 border rounded-lg" id="edit-content-{{ comment.id }}">{{ comment.content }}</textarea>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-2">Save Changes</button>
+            </form>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-gray-500 text-center italic">No comments yet. Be the first to join the conversation!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+<!-- Toggle Edit Form Script -->
+<script>
+function toggleEditForm(commentId) {
+    const editForm = document.getElementById(`edit-form-${commentId}`);
+    const commentContent = document.getElementById(`comment-content-${commentId}`);
+    const editButton = document.getElementById(`edit-button-${commentId}`);
+
+    if (editForm.classList.contains('hidden')) {
+        editForm.classList.remove('hidden');
+        commentContent.classList.add('hidden');
+        editButton.textContent = 'Cancel Edit';
+    } else {
+        editForm.classList.add('hidden');
+        commentContent.classList.remove('hidden');
+        editButton.textContent = 'Edit';
+    }
+}
+</script>

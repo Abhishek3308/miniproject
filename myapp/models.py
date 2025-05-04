@@ -17,10 +17,7 @@ class UserProfile(models.Model):
     profession = models.CharField(max_length=255, blank=True, null=True)  # Example: Entrepreneur, Developer
     expertise = models.CharField(max_length=255, blank=True, null=True)  # Example: AI, Marketing, FinTech
     bio = models.TextField(blank=True, null=True)  # Short user description
-    resume = models.FileField(upload_to="resumes/", blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
-    linkedin = models.URLField(blank=True, null=True)
-    portfolio_website = models.URLField(blank=True, null=True)
 
     class Meta:
         verbose_name = "User Profile"
@@ -29,14 +26,13 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.profession or 'Ideator'}"
 
+
+
 class OrganizationProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="organization_profile")
     company_name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
     job_title = models.CharField(max_length=255)  # Role of the user in the company
-    industry = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
-    website = models.URLField(blank=True, null=True)
-    linkedin = models.URLField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to="organization_profiles/", blank=True, null=True)
 
     class Meta:
@@ -95,4 +91,24 @@ class Follow(models.Model):
         return f"{self.follower} follows {self.following}"
 
 
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'idea')
+
+
+class Comment(models.Model):
+    idea = models.ForeignKey(Idea, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Report(models.Model):
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

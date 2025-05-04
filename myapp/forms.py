@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like, Comment ,Report
 from rapidfuzz import fuzz
 
 class SignUpForm(UserCreationForm):
@@ -67,15 +67,12 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ["username", "profession", "expertise", "bio", "resume", "profile_picture", "linkedin", "portfolio_website"]
+        fields = ["username", "profession", "expertise", "bio", "profile_picture"]
         widgets = {
             "profession": forms.TextInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Enter your profession"}),
             "expertise": forms.TextInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Your expertise areas"}),
             "bio": forms.Textarea(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "rows": 3, "placeholder": "Tell us about yourself..."}),
-            "resume": forms.ClearableFileInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm"}),
             "profile_picture": forms.ClearableFileInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm"}),
-            "linkedin": forms.URLInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "LinkedIn Profile URL"}),
-            "portfolio_website": forms.URLInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm", "placeholder": "Your portfolio website"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -93,13 +90,15 @@ class UserProfileForm(forms.ModelForm):
         if commit:
             profile.save()
         return profile
+
     
     
 # Organization Profile Form
 class OrganizationProfileForm(forms.ModelForm):
     class Meta:
         model = OrganizationProfile
-        fields = ["company_name", "job_title", "industry", "location", "website", "linkedin","profile_picture"]
+        fields = ['company_name','description','job_title', 'profile_picture']
+
 
 # Idea Submission Form
 class IdeaForm(forms.ModelForm):
@@ -159,3 +158,35 @@ class FollowForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FollowForm, self).__init__(*args, **kwargs)
+
+
+class LikeForm(forms.ModelForm):
+    class Meta:
+        model = Like
+        fields = []
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Write your comment...'}),
+        }
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['reason']
+        widgets = {
+            'reason': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Describe the reason for reporting...'}),
+        }
+
+
+
+# class CommentReactionForm(forms.ModelForm):
+#     class Meta:
+#         model = CommentReaction
+#         fields = ['is_like']
+#         widgets = {
+#             'is_like': forms.HiddenInput()  # Hide the field and use the view/button to set value
+#         }

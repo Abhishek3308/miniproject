@@ -9,10 +9,21 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
     # Profiles
-    path('user/profile/', views.user_profile, name='user_profile'),
-    path('organization/profile/', views.organization_profile, name='organization_profile'),
+    # For user profiles by username
+    # For viewing your own profile (no username needed)
+        # User Profile (for the logged-in user's own profile)
+    path('user/profile/', views.user_profile, name='my_user_profile'),
     path('user/profile/edit/', views.edit_userprofile, name='edit_userprofile'),
+    path('user/profile/<str:username>/', views.view_user_profile, name='user_profile'),
+
     path('organization/profile/edit/',views.edit_organization_profile, name='edit_organization_profile'),
+
+
+    # Organization Profile (for the logged-in organization's own profile)
+    path('organization/profile/', views.organization_profile, name='my_organization_profile'),
+
+    # Organization Profile (for other organization's profiles)
+    path('organization/profile/<str:username>/', views.view_organization_profile, name='organization_profile'),
     # path('organization/<int:id>/', views.organization_detail, name='organization_detail'),
     path('organization/delete/<int:id>/', views.delete_organization, name='delete_organization'),
     path('admin_dashboard/users/delete/<int:id>/',views.delete_user, name='delete_user'),
@@ -51,6 +62,13 @@ urlpatterns = [
     path('profile/<str:username>/unfollow/', views.unfollow_user, name='unfollow_user'),
     path('profile/<str:username>/followers/', views.view_followers, name='view_followers'),
     path('profile/<str:username>/following/', views.view_following, name='view_following'),
+    path('like/<int:idea_id>/', views.like_idea, name='like_idea'),
+    path('ideas/<int:idea_id>/unlike/', views.unlike_idea, name='unlike_idea'),
+    path('comment/<int:idea_id>/', views.comment_idea, name='comment_idea'),
+    # path('comment/<int:comment_id>/react/', views.react_to_comment, name='react_to_comment'),
+    path('report/<int:idea_id>/', views.report_idea, name='report_idea'),
+    path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
 
+    path('about-us/', views.about_us, name='about_us'),
 
 ]

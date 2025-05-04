@@ -6,47 +6,70 @@
 
     <!-- Profile Header -->
     <div class="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8 mb-8">
-        <img src="{% if user.user_profile.profile_picture %}{{ user.user_profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" 
+        <img src="{% if viewed_user.user_profile.profile_picture %}{{ viewed_user.user_profile.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" 
              alt="Profile Picture" 
              class="h-24 w-24 rounded-full object-cover border shadow-md">
         <div class="text-center sm:text-left mt-4 sm:mt-0 w-full">
-            <h2 class="text-3xl font-bold text-gray-800">{{ user.username }}</h2>
-            <p class="text-gray-600">{{ user.user_profile.bio|default:"No bio available" }}</p>
+            <h2 class="text-3xl font-bold text-gray-800">{{ viewed_user.username }}</h2>
+            <p class="text-gray-600">{{ viewed_user.user_profile.bio|default:"No bio available" }}</p>
 
+            {% if viewed_user.username %}
             <!-- Follower/Following Count -->
             <div class="flex justify-center sm:justify-start space-x-6 mt-4 text-sm text-gray-600">
-                <a href="{% url 'view_followers' user.username %}">
+                {% if viewed_user.username %}
+                    <a href="{% url 'view_followers' viewed_user.username %}">
+                        <div><span class="font-semibold">{{ follower_count }}</span> Followers</div>
+                    </a>
+                    <a href="{% url 'view_following' viewed_user.username %}">
+                        <div><span class="font-semibold">{{ following_count }}</span> Following</div>
+                    </a>
+                {% else %}
                     <div><span class="font-semibold">{{ follower_count }}</span> Followers</div>
-                </a>
-                <a href="{% url 'view_following' user.username %}">
                     <div><span class="font-semibold">{{ following_count }}</span> Following</div>
-                </a>
+                {% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 
     <!-- Profile Details -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <p><strong>Profession:</strong> {{ user.user_profile.profession|default:"Not specified" }}</p>
-        <p><strong>Expertise:</strong> {{ user.user_profile.expertise|default:"Not specified" }}</p>
-        <p class="col-span-2"><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Profession:</strong> {{ viewed_user.user_profile.profession|default:"Not specified" }}</p>
+        <p><strong>Expertise:</strong> {{ viewed_user.user_profile.expertise|default:"Not specified" }}</p>
+        <p class="col-span-2"><strong>Email:</strong> {{ viewed_user.email }}</p>
 
-        {% if user.user_profile.linkedin %}
-            <p><strong>LinkedIn:</strong> <a href="{{ user.user_profile.linkedin }}" class="text-blue-500" target="_blank">View Profile</a></p>
+        {% if viewed_user.user_profile.linkedin %}
+            <p><strong>LinkedIn:</strong> <a href="{{ viewed_user.user_profile.linkedin }}" class="text-blue-500" target="_blank">View Profile</a></p>
         {% endif %}
-        {% if user.user_profile.portfolio_website %}
-            <p><strong>Portfolio:</strong> <a href="{{ user.user_profile.portfolio_website }}" class="text-blue-500" target="_blank">Visit Website</a></p>
+        {% if viewed_user.user_profile.portfolio_website %}
+            <p><strong>Portfolio:</strong> <a href="{{ viewed_user.user_profile.portfolio_website }}" class="text-blue-500" target="_blank">Visit Website</a></p>
         {% endif %}
     </div>
 
-    <!-- Edit + Back Buttons -->
+    <!-- Buttons -->
     <div class="flex space-x-4 mb-8">
-        <a href="{% url 'edit_userprofile' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow">Edit Profile</a>
+        {% if viewed_user.username %}
+            {% if viewing_own_profile %}
+                <a href="{% url 'edit_userprofile' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow">Edit Profile</a>
+            {% else %}
+                {% if is_following %}
+                    <form method="post" action="{% url 'unfollow_user' viewed_user.username %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 shadow">Unfollow</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'follow_user' viewed_user.username %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 shadow">Follow</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
         <a href="{% url 'home' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 shadow">Back to Home</a>
     </div>
 
     <!-- Ideas Section -->
-    <h3 class="text-xl font-semibold text-gray-800 mb-4">Your Ideas</h3>
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">Ideas by {{ viewed_user.username }}</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {% for idea in ideas %}
             <div class="bg-gray-50 p-4 rounded-lg shadow hover:shadow-md transition">
@@ -55,7 +78,7 @@
                 <a href="{% url 'idea_detail' idea.id %}" class="text-blue-600 text-sm hover:underline font-medium">View Idea</a>
             </div>
         {% empty %}
-            <p class="text-gray-500 col-span-full">You haven't posted any ideas yet.</p>
+            <p class="text-gray-500 col-span-full">No ideas have been posted yet.</p>
         {% endfor %}
     </div>
 </div>

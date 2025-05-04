@@ -11,8 +11,8 @@
         <!-- Profile Picture Upload -->
         <div class="flex items-center space-x-4">
             <img id="preview-image"
-                 src="{{ profile_picture_url|default_if_none:''|default:'' }}"
-                 onerror="this.src='{% static 'images/default-profile.png' %}'"
+                 src="{{ profile_picture_url|default:'' }}"
+                 onerror="this.onerror=null;this.src='{% static 'images/default-profile.png' %}'"
                  alt="Profile Picture"
                  class="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg object-cover">
             <div class="w-full">
@@ -37,20 +37,6 @@
                       class="w-full border border-gray-300 p-3 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-400">{{ form.description.value|default:'' }}</textarea>
         </div>
 
-        <!-- Website -->
-        <div>
-            <label class="block font-semibold text-gray-700 mb-1">Website</label>
-            <input type="url" name="website" value="{{ form.website.value|default:'' }}"
-                   class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-
-        <!-- LinkedIn -->
-        <div>
-            <label class="block font-semibold text-gray-700 mb-1">LinkedIn</label>
-            <input type="url" name="linkedin" value="{{ form.linkedin.value|default:'' }}"
-                   class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-
         <!-- Job Title -->
         <div>
             <label class="block font-semibold text-gray-700 mb-1">Job Title</label>
@@ -58,17 +44,10 @@
                    class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
 
-        <!-- Industry -->
+        <!-- Username -->
         <div>
-            <label class="block font-semibold text-gray-700 mb-1">Industry</label>
-            <input type="text" name="industry" value="{{ form.industry.value|default:'' }}"
-                   class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-
-        <!-- Location -->
-        <div>
-            <label class="block font-semibold text-gray-700 mb-1">Location</label>
-            <input type="text" name="location" value="{{ form.location.value|default:'' }}"
+            <label class="block font-semibold text-gray-700 mb-1">Username</label>
+            <input type="text" name="username" value="{{ user.username }}"
                    class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
 

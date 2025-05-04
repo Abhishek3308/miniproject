@@ -3,11 +3,13 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow 
-from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment
+from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm
 from django.urls import path
 from django.template.response import TemplateResponse
 from rapidfuzz import fuzz
+
+
 
 
 # Home Page (Shows All Ideas)
@@ -74,31 +76,103 @@ def logout_view(request):
 
 # User Profile (View & Update)
 @login_required(login_url='signin')
-def user_profile(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
+def user_profile(request, username=None):
+    if username:
+        user = get_object_or_404(User, username=username, is_user=True)
+    else:
+        user = request.user
 
-    # Handle form submission
-    if request.method == "POST":
+    # Get or create the user profile
+    profile, created = UserProfile.objects.get_or_create(user=user)
+
+    # Handling form submission if it's the current user's profile
+    if request.method == "POST" and user == request.user:
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect("user_profile")
+            return redirect("user_profile", username=user.username)
     else:
-        form = UserProfileForm(instance=profile)
+        form = UserProfileForm(instance=profile) if user == request.user else None
 
-    # ✅ Get follower/following counts
-    follower_count = Follow.objects.filter(following=request.user).count()
-    following_count = Follow.objects.filter(follower=request.user).count()
+    # Calculate follower and following counts
+    follower_count = Follow.objects.filter(following=user).count()
+    following_count = Follow.objects.filter(follower=user).count()
 
-    # ✅ Get user's ideas
-    ideas = Idea.objects.filter(user=request.user)  # or use creator=request.user if that’s the field
+    # Get the user's ideas
+    ideas = Idea.objects.filter(user=user)
 
+    # Check if the current user is following the profile user
+    is_following = Follow.objects.filter(
+        follower=request.user,
+        following=user
+    ).exists()
+
+    # Pass the profile and related information to the template
     return render(request, "user_profile.html", {
         "form": form,
         "follower_count": follower_count,
         "following_count": following_count,
         "ideas": ideas,
+        "user_profile": profile,  # This is the profile you passed
+        "viewing_own_profile": user == request.user,
+        "is_following": is_following,
     })
+
+
+
+
+
+
+
+
+
+
+@login_required(login_url='signin')
+def view_user_profile(request, username):
+    viewed_user = get_object_or_404(User, username=username)
+
+    # Check if it's a user or an organization profile
+    if viewed_user.is_organization:
+        return redirect('view_organization_profile', username=viewed_user.username)
+    
+    if not viewed_user.is_user:
+        return redirect('home')
+
+    # Safely get or create user profile
+    try:
+        profile = UserProfile.objects.get(user=viewed_user)
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=viewed_user)
+
+    ideas = Idea.objects.filter(user=viewed_user)
+    follower_count = Follow.objects.filter(following=viewed_user).count()
+    following_count = Follow.objects.filter(follower=viewed_user).count()
+    is_following = Follow.objects.filter(follower=request.user, following=viewed_user).exists()
+
+    return render(request, "user_profile.html", {
+        "viewed_user": viewed_user,
+        "profile": profile,
+        "ideas": ideas,
+        "follower_count": follower_count,
+        "following_count": following_count,
+        "is_following": is_following,
+        "viewing_own_profile": viewed_user == request.user,
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @login_required(login_url='signin') 
@@ -110,7 +184,7 @@ def edit_userprofile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
         if form.is_valid():
             form.save()
-            return redirect('user_profile')  # Replace with your desired redirect after saving
+            return redirect('user_profile', username=request.user.username)  # ✅ fixed
     else:
         form = UserProfileForm(instance=profile, user=request.user)
 
@@ -118,43 +192,100 @@ def edit_userprofile(request):
 
 
 
+
 # Organization Profile (View & Update)
-@login_required(login_url='signin')
-def organization_profile(request):
-    org_profile, created = OrganizationProfile.objects.get_or_create(user=request.user)
-
-    # Ensure `profile_picture` has a valid URL or use a default
-    profile_pic_url = org_profile.profile_picture.url if org_profile.profile_picture else "/static/images/org-placeholder.png"
-
-    if request.method == "POST":
-        form = OrganizationProfileForm(request.POST, request.FILES, instance=org_profile)
-        if form.is_valid():
-            form.save()
-            return redirect("organization_profile")
+login_required(login_url='signin')
+def organization_profile(request, username=None):
+    if username:
+        # Viewing another organization's profile
+        user = get_object_or_404(User, username=username, is_organization=True)
+        org_profile = get_object_or_404(OrganizationProfile, user=user)
+        events = PostEvent.objects.filter(user=user)
+        profile_pic_url = org_profile.profile_picture.url if org_profile.profile_picture else "/static/images/org-placeholder.png"
+        
+        return render(request, "organization_profile.html", {
+            "organization_profile": org_profile,
+            "events": events,
+            "profile_pic_url": profile_pic_url,
+            "viewing_own_profile": False,
+        })
     else:
-        form = OrganizationProfileForm(instance=org_profile)
+        # Viewing own profile
+        user = request.user
+        org_profile, created = OrganizationProfile.objects.get_or_create(user=user)
 
-    return render(request, "organization_profile.html", {
-        "form": form,
-        "organization_profile": org_profile,  # Ensure this is passed to template
-        "profile_pic_url": profile_pic_url,
+        if request.method == "POST":
+            form = OrganizationProfileForm(request.POST, request.FILES, instance=org_profile)
+            if form.is_valid():
+                form.save()
+                return redirect("organization_profile")
+        else:
+            form = OrganizationProfileForm(instance=org_profile)
+
+        events = PostEvent.objects.filter(user=user)
+        profile_pic_url = org_profile.profile_picture.url if org_profile.profile_picture else "/static/images/org-placeholder.png"
+
+        return render(request, "organization_profile.html", {
+            "form": form,
+            "organization_profile": org_profile,
+            "events": events,
+            "profile_pic_url": profile_pic_url,
+            "viewing_own_profile": True,
+        })
+
+
+@login_required(login_url='signin')
+def view_organization_profile(request, username):
+    viewed_user = get_object_or_404(User, username=username)
+    
+    # Ensure the user is an organization
+    if not viewed_user.is_organization:
+        return redirect('home')
+
+    try:
+        organization_profile = viewed_user.organization_profile  # Get the OrganizationProfile
+    except OrganizationProfile.DoesNotExist:
+        return redirect('profile_not_found')  # Handle missing profiles appropriately
+    
+    events = PostEvent.objects.filter(user=viewed_user)
+    
+    return render(request, 'organization_profile.html', {
+        'organization_profile': organization_profile,
+        'viewed_user': viewed_user,
+        'events': events,
     })
 
 
-@login_required
+
+
+
+
+
+
+
+@login_required(login_url='signin')
 def edit_organization_profile(request):
     profile = request.user.organization_profile
+    user = request.user  # Get the User object
 
     if request.method == 'POST':
         profile.company_name = request.POST.get('name', '')
         profile.description = request.POST.get('description', '')
-        
+
         # Save uploaded image if available
         if 'profile_picture' in request.FILES:
             profile.profile_picture = request.FILES['profile_picture']
 
+        # Update username if provided
+        new_username = request.POST.get('username', '').strip()
+        if new_username and new_username != user.username:
+            user.username = new_username
+            user.save()  # Save the updated user
+
         profile.save()
-        return redirect('organization_profile')
+
+        # Redirect to the organization profile with the updated username
+        return redirect('organization_profile', username=user.username)
 
     profile_picture_url = profile.profile_picture.url if profile.profile_picture else None
 
@@ -162,6 +293,9 @@ def edit_organization_profile(request):
         'form': profile,
         'profile_picture_url': profile_picture_url,
     })
+
+
+
 
 # Idea Submission
 @login_required(login_url='signin')
@@ -238,7 +372,14 @@ def idea_list(request):
     else:
         ideas = Idea.objects.all()  # Show all ideas if no search query
 
+    # Add the like count for each idea
+    for idea in ideas:
+        idea.likes_count = idea.like_set.count()
+        idea.user_liked = idea.like_set.filter(user=request.user).exists()
+
     return render(request, 'idea_list.html', {'ideas': ideas, 'query': query})
+
+
 
 # @login_required(login_url='signin')
 # def explore_ideas(request):
@@ -356,8 +497,23 @@ def post_event_view(request):
 
 @login_required(login_url='signin')
 def events_view(request):
-    events = PostEvent.objects.filter(user__is_organization=True)  # Fetch only organization-posted events
-    return render(request, "events.html", {"events": events})
+    # Get the search query from GET request
+    query = request.GET.get('q', '')
+    
+    # Filter events based on the search query
+    if query:
+        events = PostEvent.objects.filter(
+            user__is_organization=True, 
+            title__icontains=query
+        ).select_related('user__organization_profile')
+    else:
+        events = PostEvent.objects.filter(user__is_organization=True).select_related('user__organization_profile')
+
+    return render(request, "events.html", {
+        'events': events,
+    })
+
+
 
 
 
@@ -485,25 +641,35 @@ def user_growth_view(request):
 
 @login_required(login_url='signin')
 def view_profile(request, username):
-    profile_user = get_object_or_404(User, username=username)
+    user = get_object_or_404(User, username=username)
     
-    # Check if the logged-in user is following the profile
-    is_following = Follow.objects.filter(follower=request.user, following=profile_user).exists()
-
-    # Get all ideas posted by the user
-    ideas = Idea.objects.filter(user=profile_user)
-
-    # Count the followers and following
-    follower_count = Follow.objects.filter(following=profile_user).count()
-    following_count = Follow.objects.filter(follower=profile_user).count()
-
-    return render(request, 'profile_detail.html', {
-        'profile_user': profile_user,
-        'is_following': is_following,
-        'ideas': ideas,
-        'follower_count': follower_count,
-        'following_count': following_count,
+    # Use the correct related_name ("user_profile" instead of "userprofile")
+    try:
+        profile = user.user_profile
+    except User.user_profile.RelatedObjectDoesNotExist:
+        # Create a profile if it doesn't exist
+        from myapp.models import UserProfile
+        profile = UserProfile.objects.create(user=user)
+    
+    # Rest of your view code...
+    ideas = Idea.objects.filter(user=user)
+    follower_count = Follow.objects.filter(following=user).count()
+    following_count = Follow.objects.filter(follower=user).count()
+    is_following = Follow.objects.filter(follower=request.user, following=user).exists()
+    
+    return render(request, "user_profile.html", {
+        "viewed_user": user,
+        "profile": profile,
+        "ideas": ideas,
+        "follower_count": follower_count,
+        "following_count": following_count,
+        "is_following": is_following,
+        "viewing_own_profile": user == request.user,
     })
+
+
+
+
 
 
 
@@ -512,19 +678,17 @@ def view_profile(request, username):
 @login_required(login_url='signin')
 def follow_user(request, username):
     profile_user = get_object_or_404(User, username=username)
-    # Follow the user if not already following
     if request.user != profile_user:
-        Follow.objects.get_or_create(follower=request.user, following=profile_user)
+        Follow.objects.get_or_create(follower=request.user, following=profile_user)  # Change 'following_user' to 'following'
     return redirect('view_profile', username=username)
-
 
 @login_required(login_url='signin')
 def unfollow_user(request, username):
     profile_user = get_object_or_404(User, username=username)
-    # Unfollow the user
     if request.user != profile_user:
-        Follow.objects.filter(follower=request.user, following=profile_user).delete()
+        Follow.objects.filter(follower=request.user, following=profile_user).delete()  # Change 'following_user' to 'following'
     return redirect('view_profile', username=username)
+
 
 
 
@@ -553,3 +717,113 @@ def view_following(request, username):
         'profile_user': profile_user,
         'following': following
     })
+
+
+
+
+@login_required(login_url='signin')
+def like_idea(request, idea_id):
+    idea = get_object_or_404(Idea, id=idea_id)
+    like, created = Like.objects.get_or_create(user=request.user, idea=idea)
+
+    if not created:
+        # Already liked → unlike
+        like.delete()
+
+    return redirect('idea_list')
+
+
+@login_required(login_url='signin')
+def unlike_idea(request, idea_id):
+    idea = get_object_or_404(Idea, id=idea_id)
+    Like.objects.filter(user=request.user, idea=idea).delete()
+    return redirect('idea_list')
+
+
+
+
+@login_required(login_url='signin')
+def comment_idea(request, idea_id):
+    idea = get_object_or_404(Idea, id=idea_id)
+    comments = Comment.objects.filter(idea=idea).order_by('-created_at')
+
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.idea = idea
+            comment.user = request.user  # Ensure correct user is commenting
+            comment.save()
+            return redirect('comment_idea', idea_id=idea.id)
+    else:
+        form = CommentForm()
+
+    return render(request, 'comment_idea.html', {
+        'idea': idea,
+        'form': form,
+        'comments': comments
+    })
+
+
+
+def edit_comment(request, comment_id):
+    # Get the comment object
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    # Ensure that the user is the one who created the comment
+    if request.user == comment.user:
+        if request.method == "POST":
+            content = request.POST.get('content')
+            comment.content = content
+            comment.save()  # Save the updated content
+            return redirect('view_idea', idea_id=comment.idea.id)  # Redirect to the idea page or wherever you need
+    return redirect('view_idea', idea_id=comment.idea.id)
+
+
+
+# @login_required(login_url='signin')
+# def react_to_comment(request, comment_id):
+#     comment = get_object_or_404(Comment, id=comment_id)
+#     is_like = request.POST.get('is_like') == 'true'
+
+#     reaction, created = CommentReaction.objects.get_or_create(
+#         comment=comment,
+#         user=request.user,
+#         defaults={'is_like': is_like}
+#     )
+
+#     if not created:
+#         if reaction.is_like == is_like:
+#             # Toggle off
+#             reaction.delete()
+#         else:
+#             # Update the reaction
+#             reaction.is_like = is_like
+#             reaction.save()
+
+#     return redirect('comment_idea', idea_id=comment.idea.id)
+
+
+
+
+@login_required(login_url='signin')
+def report_idea(request, idea_id):
+    idea = Idea.objects.get(id=idea_id)
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.user = request.user
+            report.idea = idea
+            report.save()
+            return redirect('explore_ideas')
+    else:
+        form = ReportForm()
+
+    return render(request, 'report_idea.html', {'form': form, 'idea': idea})
+
+
+
+
+def about_us(request):
+    return render(request, 'about_us.html')
