@@ -24,36 +24,22 @@
     <div class="mt-14 max-w-3xl mx-auto">
         <h2 class="text-3xl font-semibold text-gray-800 mb-6 border-b pb-2">Comments</h2>
         {% for comment in comments %}
-        <div class="bg-white p-6 mb-6 rounded-xl shadow-sm border hover:shadow-md transition duration-300">
+        <div class="bg-white p-6 mb-6 rounded-xl shadow-sm border hover:shadow-md transition duration-300 relative">
             <div class="flex items-center mb-3">
-                <!-- Profile Picture Link -->
                 {% if comment.user.is_user %}
-                    <a href="{% url 'user_profile' comment.user.username %}">
+                    <a href="{% url 'user_profile' comment.user.username %}" class="profile-link">
                 {% elif comment.user.is_organization %}
-                    <a href="{% url 'organization_profile' comment.user.username %}">
+                    <a href="{% url 'organization_profile' comment.user.username %}" class="profile-link">
                 {% endif %}
-                    {% if comment.user.is_user %}
-                        <!-- Check if the user has a profile picture -->
-                        {% if comment.user.user_profile.profile_picture %}
-                            <img src="{{ comment.user.user_profile.profile_picture.url }}" alt="{{ comment.user.username }}"
-                                 class="w-12 h-12 rounded-full border-2 border-blue-600 shadow-sm">
-                        {% else %}
-                            <img src="{% static 'default-avatar.png' %}" alt="{{ comment.user.username }}"
-                                 class="w-12 h-12 rounded-full border-2 border-gray-400 shadow-sm">
-                        {% endif %}
-                    {% elif comment.user.is_organization %}
-                        <!-- Check if the organization has a profile picture -->
-                        {% if comment.user.organization_profile.profile_picture %}
-                            <img src="{{ comment.user.organization_profile.profile_picture.url }}" alt="{{ comment.user.username }}"
-                                 class="w-12 h-12 rounded-full border-2 border-green-600 shadow-sm">
-                        {% else %}
-                            <img src="{% static 'default-avatar.png' %}" alt="{{ comment.user.username }}"
-                                 class="w-12 h-12 rounded-full border-2 border-gray-400 shadow-sm">
-                        {% endif %}
+                    {% if comment.user.is_user and comment.user.user_profile.profile_picture %}
+                        <img src="{{ comment.user.user_profile.profile_picture.url }}" class="w-12 h-12 rounded-full border-2 border-blue-600 shadow-sm">
+                    {% elif comment.user.is_organization and comment.user.organization_profile.profile_picture %}
+                        <img src="{{ comment.user.organization_profile.profile_picture.url }}" class="w-12 h-12 rounded-full border-2 border-green-600 shadow-sm">
+                    {% else %}
+                        <img src="{% static 'default-avatar.png' %}" class="w-12 h-12 rounded-full border-2 border-gray-400 shadow-sm">
                     {% endif %}
                 </a>
 
-                <!-- Username Link -->
                 <div class="ml-4">
                     {% if comment.user.is_user %}
                         <a href="{% url 'user_profile' comment.user.username %}" class="text-lg font-semibold text-gray-800 hover:underline">
@@ -64,19 +50,38 @@
                     </a>
                     <p class="text-sm text-gray-500">{{ comment.created_at|date:"M d, Y • H:i" }}</p>
                 </div>
+
+                <!-- Comment Dropdown -->
+                <div class="ml-auto relative">
+                    <button type="button" class="comment-dropdown-toggle text-gray-500 hover:text-gray-700 text-xl focus:outline-none transition-all duration-200 hover:bg-gray-100 p-1 rounded-full w-8 h-8 flex items-center justify-center">
+                        ⋮
+                    </button>
+                    <div class="comment-dropdown-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg hidden z-50">
+                        {% if comment.user == user %}
+                            <button onclick="toggleEditForm({{ comment.id }})" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-blue-600">✏️ Edit</button>
+                            <form action="{% url 'delete_comment' comment.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">🗑️ Delete</button>
+                            </form>
+                        {% else %}
+                            <button class="block w-full text-left px-4 py-2 text-sm text-gray-400 cursor-default">No actions available</button>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
 
+            <!-- Comment Content -->
             <p class="text-gray-700 text-base leading-relaxed" id="comment-content-{{ comment.id }}">{{ comment.content }}</p>
 
+            <!-- Edit Form -->
             {% if comment.user == user %}
-            <!-- Edit Button -->
-            <button class="text-blue-600 mt-2" id="edit-button-{{ comment.id }}" onclick="toggleEditForm({{ comment.id }})">Edit</button>
-
-            <!-- Edit Comment Form (Hidden initially) -->
             <form method="POST" action="{% url 'edit_comment' comment.id %}" class="hidden mt-4" id="edit-form-{{ comment.id }}">
                 {% csrf_token %}
                 <textarea name="content" class="w-full p-2 border rounded-lg" id="edit-content-{{ comment.id }}">{{ comment.content }}</textarea>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-2">Save Changes</button>
+                <div class="flex gap-2 mt-2">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Save Changes</button>
+                    <button type="button" onclick="toggleEditForm({{ comment.id }})" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Cancel</button>
+                </div>
             </form>
             {% endif %}
         </div>
@@ -85,23 +90,64 @@
         {% endfor %}
     </div>
 </div>
-{% endblock %}
 
-<!-- Toggle Edit Form Script -->
 <script>
-function toggleEditForm(commentId) {
-    const editForm = document.getElementById(`edit-form-${commentId}`);
-    const commentContent = document.getElementById(`comment-content-${commentId}`);
-    const editButton = document.getElementById(`edit-button-${commentId}`);
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle comment dropdown toggle
+    document.querySelectorAll('.comment-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = this.nextElementSibling;
+            
+            // Close all other comment dropdowns
+            document.querySelectorAll('.comment-dropdown-menu').forEach(menu => {
+                if (menu !== dropdown) menu.classList.add('hidden');
+            });
+            
+            // Toggle current comment dropdown
+            dropdown.classList.toggle('hidden');
+        });
+    });
 
-    if (editForm.classList.contains('hidden')) {
-        editForm.classList.remove('hidden');
-        commentContent.classList.add('hidden');
-        editButton.textContent = 'Cancel Edit';
-    } else {
-        editForm.classList.add('hidden');
-        commentContent.classList.remove('hidden');
-        editButton.textContent = 'Edit';
-    }
+    // Close all comment dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.comment-dropdown-menu').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    });
+
+    // Prevent dropdown from closing when clicking inside
+    document.querySelectorAll('.comment-dropdown-menu').forEach(menu => {
+        menu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+});
+
+// Toggle edit form visibility
+function toggleEditForm(commentId) {
+    const form = document.getElementById(`edit-form-${commentId}`);
+    const content = document.getElementById(`comment-content-${commentId}`);
+    
+    form.classList.toggle('hidden');
+    content.classList.toggle('hidden');
 }
 </script>
+
+<style>
+.comment-dropdown-menu {
+    display: none;
+    animation: fadeIn 0.1s ease-in-out;
+}
+
+.comment-dropdown-menu:not(.hidden) {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+{% endblock content %}

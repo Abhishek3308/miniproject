@@ -1,0 +1,176 @@
+{% extends "navbar.html" %}
+
+{% block title %}Add User - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header with back button -->
+    <div class="flex items-center mb-8">
+      <a href="{% url 'admin_dashboard' %}" class="mr-4 p-2 rounded-full hover:bg-gray-200 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </a>
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Add New User</h1>
+        <p class="text-gray-600 mt-1">Create a new user account for your platform</p>
+      </div>
+    </div>
+
+    <!-- User Registration Form -->
+    <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+      <!-- Form header with icon -->
+      <div class="bg-blue-600 px-6 py-4">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-blue-500 bg-opacity-20 mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-semibold text-white">Create New Account</h2>
+        </div>
+      </div>
+
+      <form method="POST" class="p-6 space-y-6">
+        {% csrf_token %}
+        
+        <!-- User Type Toggle -->
+        <div class="flex items-center justify-center mb-6">
+          <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button type="button" id="individualBtn" class="px-6 py-3 text-sm font-medium rounded-l-lg border border-blue-600 bg-blue-600 text-white">
+              Individual User
+            </button>
+            <button type="button" id="organizationBtn" class="px-6 py-3 text-sm font-medium rounded-r-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+              Organization
+            </button>
+          </div>
+        </div>
+
+        <!-- Common Fields -->
+        <div class="relative">
+          <input type="text" name="username" id="username" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" " required>
+          <label for="username" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Username</label>
+        </div>
+
+        <div class="relative">
+          <input type="email" name="email" id="email" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" " required>
+          <label for="email" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Email Address</label>
+        </div>
+
+        <div class="relative">
+          <input type="password" name="password" id="password" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" " required>
+          <label for="password" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Password</label>
+        </div>
+
+        <div class="relative">
+          <input type="password" name="confirm_password" id="confirm_password" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" " required>
+          <label for="confirm_password" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Confirm Password</label>
+        </div>
+
+        <!-- Individual User Fields (shown by default) -->
+        <div id="individualFields">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="relative">
+              <input type="text" name="first_name" id="first_name" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" ">
+              <label for="first_name" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">First Name</label>
+            </div>
+
+            <div class="relative">
+              <input type="text" name="last_name" id="last_name" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" ">
+              <label for="last_name" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Last Name</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organization Fields (hidden by default) -->
+        <div id="organizationFields" class="hidden">
+          <div class="relative">
+            <input type="text" name="org_name" id="org_name" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" ">
+            <label for="org_name" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Organization Name</label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="relative">
+              <input type="text" name="org_contact" id="org_contact" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" ">
+              <label for="org_contact" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Contact Person</label>
+            </div>
+
+            <div class="relative">
+              <input type="tel" name="org_phone" id="org_phone" class="w-full p-4 border border-gray-300 rounded-lg peer focus:border-blue-500 focus:outline-none" placeholder=" ">
+              <label for="org_phone" class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Phone Number</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden field to track user type -->
+        <input type="hidden" name="user_type" id="user_type" value="individual">
+
+        <!-- Form actions -->
+        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t border-gray-200">
+          <a href="{% url 'admin_dashboard' %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-center">
+            Cancel
+          </a>
+          <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-colors shadow-md flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom styles for select dropdown */
+  select {
+    background-image: none;
+    padding-top: 1.5rem;
+  }
+  select:focus {
+    padding-top: 1.5rem;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const individualBtn = document.getElementById('individualBtn');
+    const organizationBtn = document.getElementById('organizationBtn');
+    const individualFields = document.getElementById('individualFields');
+    const organizationFields = document.getElementById('organizationFields');
+    const userTypeField = document.getElementById('user_type');
+
+    // Set initial state
+    let currentType = 'individual';
+
+    // Toggle between individual and organization
+    individualBtn.addEventListener('click', function() {
+      if (currentType !== 'individual') {
+        currentType = 'individual';
+        individualBtn.classList.remove('border-gray-300', 'bg-white', 'text-gray-700', 'hover:bg-gray-50');
+        individualBtn.classList.add('border-blue-600', 'bg-blue-600', 'text-white');
+        organizationBtn.classList.remove('border-blue-600', 'bg-blue-600', 'text-white');
+        organizationBtn.classList.add('border-gray-300', 'bg-white', 'text-gray-700', 'hover:bg-gray-50');
+        individualFields.classList.remove('hidden');
+        organizationFields.classList.add('hidden');
+        userTypeField.value = 'individual';
+      }
+    });
+
+    organizationBtn.addEventListener('click', function() {
+      if (currentType !== 'organization') {
+        currentType = 'organization';
+        organizationBtn.classList.remove('border-gray-300', 'bg-white', 'text-gray-700', 'hover:bg-gray-50');
+        organizationBtn.classList.add('border-blue-600', 'bg-blue-600', 'text-white');
+        individualBtn.classList.remove('border-blue-600', 'bg-blue-600', 'text-white');
+        individualBtn.classList.add('border-gray-300', 'bg-white', 'text-gray-700', 'hover:bg-gray-50');
+        organizationFields.classList.remove('hidden');
+        individualFields.classList.add('hidden');
+        userTypeField.value = 'organization';
+      }
+    });
+  });
+</script>
+{% endblock %}

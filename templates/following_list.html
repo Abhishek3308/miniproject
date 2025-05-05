@@ -1,42 +1,48 @@
 {% extends "navbar.html" %}
 
-{% block title %}Users {{ profile_user.username }} is Following{% endblock %}
+{% block title %}{{ profile_user.username }} is Following{% endblock %}
 
 {% block content %}
-<section class="py-12 bg-gray-100">
-  <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
+<section class="py-12 bg-gradient-to-b from-blue-50 to-white min-h-screen">
+  <div class="max-w-5xl mx-auto px-6">
+    
+    <div class="bg-white shadow-xl rounded-2xl p-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+        <i class="fas fa-user-friends text-blue-600 mr-2"></i>
+        {{ profile_user.username }} is Following
+      </h1>
 
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Users {{ profile_user.username }} is Following</h1>
+      {% if following %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {% for follow in following %}
+            <div class="bg-white rounded-xl shadow hover:shadow-lg p-5 transition duration-300 border">
+              <a href="{% url 'user_profile' follow.following.username %}" class="flex flex-col items-center text-center">
+                {% if follow.following.user_profile.profile_picture and follow.following.user_profile.profile_picture.name %}
+                  <img src="{{ follow.following.user_profile.profile_picture.url }}" class="w-20 h-20 rounded-full object-cover mb-4">
+                {% else %}
+                  <img src="https://via.placeholder.com/80" class="w-20 h-20 rounded-full object-cover mb-4">
+                {% endif %}
+                <h3 class="text-lg font-semibold text-gray-800">{{ follow.following.username }}</h3>
+                <p class="text-sm text-gray-500 mt-1">{{ follow.following.user_profile.profession|default:"No profession" }}</p>
+              </a>
 
-    <div class="space-y-4">
-      {% for follow in following %}
-        <div class="flex items-center justify-between space-x-4 hover:bg-gray-50 p-2 rounded-lg transition">
-
-          <!-- Clickable Profile Info -->
-          <a href="{% url 'user_profile' follow.following.username %}" class="flex items-center space-x-4">
-            {% if follow.following.user_profile.profile_picture %}
-              <img src="{{ follow.following.user_profile.profile_picture.url }}" class="w-10 h-10 rounded-full object-cover">
-            {% else %}
-              <img src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full object-cover">
-            {% endif %}
-            <div>
-              <h3 class="font-semibold text-gray-800">{{ follow.following.username }}</h3>
-              <p class="text-sm text-gray-600">{{ follow.following.user_profile.profession|default:"No profession" }}</p>
+              <form method="POST" action="{% url 'unfollow_user' follow.following.username %}" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-red-100 text-red-600 hover:bg-red-200 font-semibold py-2 rounded transition">
+                  Unfollow
+                </button>
+              </form>
             </div>
-          </a>
-
-          <!-- Unfollow Button -->
-          <form method="POST" action="{% url 'unfollow_user' follow.following.username %}">
-            {% csrf_token %}
-            <button type="submit" class="text-red-500 hover:text-red-600 font-semibold">Unfollow</button>
-          </form>
-
+          {% endfor %}
         </div>
-      {% empty %}
-        <p class="text-gray-500">You are not following anyone yet.</p>
-      {% endfor %}
+      {% else %}
+        <p class="text-center text-gray-500 text-lg">You are not following anyone yet.</p>
+      {% endif %}
     </div>
 
   </div>
 </section>
+
+<!-- FontAwesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 {% endblock %}

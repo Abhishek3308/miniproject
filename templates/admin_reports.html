@@ -1,0 +1,58 @@
+{% extends "navbar.html" %}
+
+{% block title %}Reports - Ideavate{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800">Platform Reports</h1>
+
+    <!-- Reported Ideas Section -->
+    <section class="mt-6">
+        <h2 class="text-2xl font-semibold text-gray-800">Reported Ideas</h2>
+        <p class="text-gray-600">List of ideas that have been reported by users with the reasons for the report.</p>
+
+        <!-- Display reported ideas -->
+        <table class="min-w-full bg-white border border-gray-300 mt-4">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 text-left border-b">Idea Title</th>
+                    <th class="py-2 px-4 text-left border-b">Reported By</th>
+                    <th class="py-2 px-4 text-left border-b">Reason</th>
+                    <th class="py-2 px-4 text-left border-b">Date Reported</th>
+                    <th class="py-2 px-4 text-left border-b">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                    <tr>
+                        <td class="py-2 px-4 border-b">{{ report.idea.idea_name }}</td>
+                        <td class="py-2 px-4 border-b">{{ report.user.username }}</td>
+                        <td class="py-2 px-4 border-b">{{ report.reason }}</td>
+                        <td class="py-2 px-4 border-b">{{ report.created_at|date:"Y-m-d H:i" }}</td>
+                        <td class="py-2 px-4 border-b">
+                            <a href="{% url 'idea_detail' report.idea.id %}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-2 px-4 text-center">No reported ideas available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Ideas and Events Report -->
+    <section class="mt-6">
+        <h2 class="text-2xl font-semibold text-gray-800">Ideas & Events Report</h2>
+        <p class="text-gray-600">Analysis of submitted ideas and upcoming events.</p>
+
+        <div class="mt-4">
+            <p><strong>Total Ideas: </strong>{{ total_ideas }}</p>
+            <p><strong>Total Events: </strong>{{ total_events }}</p>
+        </div>
+    </section>
+</div>
+{% endblock %}

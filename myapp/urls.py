@@ -68,7 +68,12 @@ urlpatterns = [
     # path('comment/<int:comment_id>/react/', views.react_to_comment, name='react_to_comment'),
     path('report/<int:idea_id>/', views.report_idea, name='report_idea'),
     path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
+    path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
 
     path('about-us/', views.about_us, name='about_us'),
+    path('admin_reports/', views.admin_reports, name='admin_reports'),
+    path('add_user/', views.add_user, name='add_user'),
+    path('send-announcement/', views.send_announcement_view, name='send_announcement'),
+
 
 ]

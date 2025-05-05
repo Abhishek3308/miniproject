@@ -3,11 +3,12 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment,Report
 from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm
 from django.urls import path
 from django.template.response import TemplateResponse
 from rapidfuzz import fuzz
+from django.db.models import Q
 
 
 
@@ -764,20 +765,29 @@ def comment_idea(request, idea_id):
         'comments': comments
     })
 
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.user == comment.user:
+        comment.delete()
+        messages.success(request, "Comment deleted successfully.")
+    else:
+        messages.error(request, "You are not allowed to delete this comment.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def edit_comment(request, comment_id):
     # Get the comment object
     comment = get_object_or_404(Comment, id=comment_id)
-    
+
     # Ensure that the user is the one who created the comment
     if request.user == comment.user:
         if request.method == "POST":
             content = request.POST.get('content')
             comment.content = content
             comment.save()  # Save the updated content
-            return redirect('view_idea', idea_id=comment.idea.id)  # Redirect to the idea page or wherever you need
-    return redirect('view_idea', idea_id=comment.idea.id)
+            return redirect('comment_idea', idea_id=comment.idea.id)  # Redirect to the idea detail page
+
+    return redirect('comment_idea', idea_id=comment.idea.id)
 
 
 
@@ -816,7 +826,7 @@ def report_idea(request, idea_id):
             report.user = request.user
             report.idea = idea
             report.save()
-            return redirect('explore_ideas')
+            return redirect('idea_list')
     else:
         form = ReportForm()
 
@@ -824,6 +834,42 @@ def report_idea(request, idea_id):
 
 
 
+  # Make sure Report (not ReportForm) is imported
+
+def admin_reports(request):
+    # Fetch all the reports
+    reports = Report.objects.all()
+
+    # Fetch totals
+    total_ideas = Idea.objects.count()
+    total_events = PostEvent.objects.count()
+
+    context = {
+        'reports': reports,
+        'total_ideas': total_ideas,
+        'total_events': total_events,
+    }
+
+    return render(request, 'admin_reports.html', context)
+
+
+
+
 
 def about_us(request):
     return render(request, 'about_us.html')
+
+
+
+
+def add_user(request):
+    # Your logic here (form to add user)
+    return render(request, 'add_user.html')
+
+
+def send_announcement_view(request):
+    # Your logic for sending an announcement
+    return render(request, 'send_announcement.html')
+
+
+

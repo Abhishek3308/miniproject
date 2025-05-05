@@ -5,27 +5,45 @@
 {% block content %}
 <section class="py-12 bg-gray-100">
   <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
-
     <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Followers of {{ profile_user.username }}</h1>
 
-    <!-- Instagram-style grid layout -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {% for follow in followers %}
-        <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
-          {% if follow.follower.user_profile.profile_picture %}
-            <img src="{{ follow.follower.user_profile.profile_picture.url }}" class="w-24 h-24 rounded-full object-cover mb-4">
-          {% else %}
-            <img src="https://via.placeholder.com/100" class="w-24 h-24 rounded-full object-cover mb-4">
-          {% endif %}
-          
-          <h3 class="font-semibold text-gray-800 text-center">{{ follow.follower.username }}</h3>
-          <p class="text-sm text-gray-500 text-center mt-2">{{ follow.follower.user_profile.profession|default:"No profession" }}</p>
+        {% with follower=follow.follower %}
+          <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
 
-          <div class="mt-4 flex space-x-4">
-            <a href="#" class="text-blue-600 hover:underline">Follow</a>
-            <a href="#" class="text-gray-500 hover:underline">Message</a>
+            {% if follower.is_user %}
+              {% with user_profile=follower.user_profile %}
+                {% if user_profile.profile_picture and user_profile.profile_picture.name %}
+                  <img src="{{ user_profile.profile_picture.url }}" class="w-24 h-24 rounded-full object-cover mb-4">
+                {% else %}
+                  <img src="https://via.placeholder.com/100" class="w-24 h-24 rounded-full object-cover mb-4">
+                {% endif %}
+                <h3 class="font-semibold text-gray-800 text-center">{{ follower.username }}</h3>
+                <p class="text-sm text-gray-500 text-center mt-2">{{ user_profile.profession|default:"No profession" }}</p>
+                <div class="mt-4 flex space-x-4">
+                  <a href="{% url 'user_profile' follower.username %}" class="text-blue-600 hover:underline">Profile</a>
+                  <a href="#" class="text-blue-600 hover:underline">Follow</a>
+                </div>
+              {% endwith %}
+
+            {% elif follower.is_organization %}
+              {% with org_profile=follower.organization_profile %}
+                {% if org_profile.profile_picture and org_profile.profile_picture.name %}
+                  <img src="{{ org_profile.profile_picture.url }}" class="w-24 h-24 rounded-full object-cover mb-4">
+                {% else %}
+                  <img src="https://via.placeholder.com/100" class="w-24 h-24 rounded-full object-cover mb-4">
+                {% endif %}
+                <h3 class="font-semibold text-gray-800 text-center">{{ org_profile.company_name }}</h3>
+                <p class="text-sm text-gray-500 text-center mt-2">{{ org_profile.job_title }}</p>
+                <div class="mt-4 flex space-x-4">
+                  <a href="{% url 'organization_profile' follower.username %}" class="text-blue-600 hover:underline">Profile</a>
+                  <a href="#" class="text-gray-600 hover:underline">Message</a>
+                </div>
+              {% endwith %}
+            {% endif %}
           </div>
-        </div>
+        {% endwith %}
       {% empty %}
         <p class="text-gray-500 col-span-full text-center">No followers yet.</p>
       {% endfor %}

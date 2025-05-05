@@ -53,47 +53,37 @@
             {% if user.is_superuser %}
               <a href="{% url 'admin_dashboard' %}" class="nav-button">Admin Dashboard</a>
 
-            {% elif user.is_user %}
-              <a href="{% url 'home' %}" class="nav-button">Home</a>
-              <a href="{% url 'idea_list' %}" class="nav-button">Explore Ideas</a>
-              <a href="{% url 'post_idea' %}" class="nav-button">Post An Idea</a>
-              <a href="{% url 'events' %}" class="nav-button">Events</a>
-              <a href="{% url 'investors' %}" class="nav-button">Investors</a>
+            {% else %}
+              {% if user.is_user %}
+                <a href="{% url 'home' %}" class="nav-button">Home</a>
+                <a href="{% url 'idea_list' %}" class="nav-button">Explore Ideas</a>
+                <a href="{% url 'post_idea' %}" class="nav-button">Post An Idea</a>
+                <a href="{% url 'events' %}" class="nav-button">Events</a>
+              {% elif user.is_organization %}
+                <a href="{% url 'home' %}" class="nav-button">Home</a>
+                <a href="{% url 'idea_list' %}" class="nav-button">Explore Ideas</a>
+                <a href="{% url 'events' %}" class="nav-button">Events</a>
+                <a href="{% url 'post_event' %}" class="nav-button">Post Events</a>
+              {% endif %}
 
-              <div class="relative flex items-center space-x-2">
+              <!-- Notification Icon -->
+              <a href="{% url 'notifications' %}" class="relative text-white hover:text-blue-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </a>
+
+              <!-- Profile Section -->
+              <div class="relative flex items-center space-x-2 ml-2">
                 <span class="text-white font-medium">{{ user.username }}</span>
                 <button onclick="toggleDropdown(event)" class="focus:outline-none">
-                  {% if user.user_profile and user.user_profile.profile_picture %}
+                  {% if user.is_user and user.user_profile.profile_picture %}
                     <img 
                       src="{{ user.user_profile.profile_picture.url }}"
                       alt="Profile"
                       class="h-8 w-8 rounded-full border-2 border-white object-cover"
                     />
-                  {% else %}
-                    <img 
-                      src="{% static 'images/default-profile.png' %}"
-                      alt="Default"
-                      class="h-8 w-8 rounded-full border-2 border-white object-cover"
-                    />
-                  {% endif %}
-                </button>
-                <div id="profile-dropdown" class="absolute right-0 mt-9 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
-                  <a href="{% url 'user_profile' username=user.username %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
-                  <a href="{% url 'your_ideas' %}" class="block px-4 py-2 hover:bg-gray-200">your ideas</a>
-                  <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
-                </div>
-              </div>
-
-            {% elif user.is_organization %}
-              <a href="{% url 'home' %}" class="nav-button">Home</a>
-              <a href="{% url 'idea_list' %}" class="nav-button">Explore Ideas</a>
-              <a href="{% url 'events' %}" class="nav-button">Events</a>
-              <a href="{% url 'post_event' %}" class="nav-button">Post Events</a>
-
-              <div class="relative flex items-center space-x-2">
-                <span class="text-white font-medium">{{ user.username }}</span>
-                <button onclick="toggleDropdown(event)" class="focus:outline-none">
-                  {% if user.organization_profile and user.organization_profile.profile_picture %}
+                  {% elif user.is_organization and user.organization_profile.profile_picture %}
                     <img 
                       src="{{ user.organization_profile.profile_picture.url }}"
                       alt="Company"
@@ -108,8 +98,13 @@
                   {% endif %}
                 </button>
                 <div id="profile-dropdown" class="absolute right-0 mt-10 w-40 bg-white text-gray-700 rounded-lg shadow-lg hidden">
-                  <a href="{% url 'organization_profile' username=user.username %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
-                  <a href="{% url 'your_events' %}" class="block px-4 py-2 hover:bg-gray-200">your events</a>
+                  {% if user.is_user %}
+                    <a href="{% url 'user_profile' username=user.username %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
+                    <a href="{% url 'your_ideas' %}" class="block px-4 py-2 hover:bg-gray-200">Your Ideas</a>
+                  {% elif user.is_organization %}
+                    <a href="{% url 'organization_profile' username=user.username %}" class="block px-4 py-2 hover:bg-gray-200">Profile</a>
+                    <a href="{% url 'your_events' %}" class="block px-4 py-2 hover:bg-gray-200">Your Events</a>
+                  {% endif %}
                   <a href="{% url 'logout' %}" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                 </div>
               </div>

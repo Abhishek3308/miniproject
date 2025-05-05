@@ -3,50 +3,145 @@
 {% block title %}Admin Dashboard - Ideavate{% endblock %}
 
 {% block content %}
-<div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
 
-    <div class="grid grid-cols-4 gap-6 mt-6">
-        <!-- Total Users -->
-        <a href="{% url 'admin_users' %}" class="p-6 bg-white shadow-md rounded-lg hover:bg-gray-100 transition">
-            <h2 class="text-xl font-semibold text-gray-700">Total Users</h2>
-            <p class="text-3xl font-bold text-indigo-600">{{ total_users }}</p>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <p class="text-gray-600 mt-2">Welcome back, {{ request.user.username }}! Here's what's happening today.</p>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">Admin</span>
+        <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 hover:bg-gray-100 transition-colors">
+          <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+          </svg>
+          Logout
         </a>
-
-        <!-- Total Organizations -->
-        <a href="{% url 'admin_organizations' %}" class="p-6 bg-white shadow-md rounded-lg hover:bg-gray-100 transition">
-            <h2 class="text-xl font-semibold text-gray-700">Total Organizations</h2>
-            <p class="text-3xl font-bold text-indigo-600">{{ total_organizations }}</p>
-        </a>
-
-        <!-- Total Ideas -->
-        <a href="{% url 'admin_ideas' %}" class="p-6 bg-white shadow-md rounded-lg hover:bg-gray-100 transition">
-            <h2 class="text-xl font-semibold text-gray-700">Total Ideas</h2>
-            <p class="text-3xl font-bold text-indigo-600">{{ total_ideas }}</p>
-        </a>
-        
-        <!-- Total Events -->
-        <a href="{% url 'admin_events' %}" class="p-6 bg-white shadow-md rounded-lg hover:bg-gray-100 transition">
-            <h2 class="text-xl font-semibold text-gray-700">Total Events</h2>
-            <p class="text-3xl font-bold text-indigo-600">{{ total_events }}</p>
-        </a>
+      </div>
     </div>
 
-    <!-- Analytics & Insights Section -->
-    <div class="mt-10">
-        <h2 class="text-2xl font-bold text-gray-800">📊 Analytics & Insights</h2>
-        <div class="grid grid-cols-2 gap-6 mt-4">
-            <!-- User Growth -->
-            <a href="{% url 'user_growth' %}" class="p-6 bg-white shadow-md rounded-lg hover:bg-gray-100 transition">
-                <h3 class="text-lg font-semibold text-gray-700">User Growth</h3>
-                <p class="text-lg text-gray-500">Track the platform's user growth over time.</p>
-            </a>
-
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {% comment %} Total Users Card {% endcomment %}
+      <a href="{% url 'admin_users' %}" class="dashboard-card">
+        <div class="card-icon bg-indigo-100 text-indigo-600">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
         </div>
+        <div class="card-details">
+          <p class="card-title">Total Users</p>
+          <p class="card-count text-indigo-600">{{ total_users }}</p>
+          <span class="card-badge bg-green-100 text-green-800">{{ new_users_this_week }} new this week</span>
+        </div>
+      </a>
+
+      {% comment %} Organizations Card {% endcomment %}
+      <a href="{% url 'admin_organizations' %}" class="dashboard-card">
+        <div class="card-icon bg-blue-100 text-blue-600">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+        </div>
+        <div class="card-details">
+          <p class="card-title">Organizations</p>
+          <p class="card-count text-blue-600">{{ total_organizations }}</p>
+          <span class="card-badge bg-purple-100 text-purple-800">{{ active_organizations }} active</span>
+        </div>
+      </a>
+
+      {% comment %} Ideas Submitted Card {% endcomment %}
+      <a href="{% url 'admin_ideas' %}" class="dashboard-card">
+        <div class="card-icon bg-green-100 text-green-600">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <div class="card-details">
+          <p class="card-title">Ideas Submitted</p>
+          <p class="card-count text-green-600">{{ total_ideas }}</p>
+          <span class="card-badge bg-yellow-100 text-yellow-800">{{ ideas_this_month }} this month</span>
+        </div>
+      </a>
+
+      {% comment %} Events Card {% endcomment %}
+      <a href="{% url 'admin_events' %}" class="dashboard-card">
+        <div class="card-icon bg-orange-100 text-orange-600">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="card-details">
+          <p class="card-title">Events Scheduled</p>
+          <p class="card-count text-orange-600">{{ total_events }}</p>
+          <span class="card-badge bg-blue-100 text-blue-800">{{ upcoming_events }} upcoming</span>
+        </div>
+      </a>
     </div>
 
-    <a href="{% url 'logout' %}" class="mt-6 inline-block px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-        Logout
-    </a>
+    <!-- Analytics Section -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">📈 Analytics Overview</h2>
+        <div class="relative">
+          <select class="appearance-none bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option selected>Last 90 days</option>
+            <option>This year</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <a href="{% url 'user_growth' %}" class="analytics-card">
+          <h3 class="analytics-title">User Growth</h3>
+          <div class="analytics-placeholder">User growth chart visualization</div>
+          <div class="analytics-footer">
+            <span>{{ new_users_this_month }} new users this month</span>
+            <span class="text-blue-600 hover:underline">View details →</span>
+          </div>
+        </a>
+
+        <a href="{% url 'admin_reports' %}" class="analytics-card">
+          <h3 class="analytics-title">Platform Activity</h3>
+          <div class="analytics-placeholder">Activity metrics visualization</div>
+          <div class="analytics-footer">
+            <span>{{ daily_active_users }} daily active users</span>
+            <span class="text-blue-600 hover:underline">View reports →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+
+        <!-- Quick Actions -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">⚡ Quick Actions</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="{% url 'add_user' %}" class="quick-action flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-center">
+                <svg class="h-8 w-8 mb-2 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+                <span class="font-medium text-gray-700">Add User</span>
+            </a>
+            
+            <a href="{% url 'send_announcement' %}" class="quick-action flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-center">
+                <svg class="h-8 w-8 mb-2 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.047 4.047 0 002 17a4.047 4.047 0 003.436 3.317"/>
+                </svg>
+                <span class="font-medium text-gray-700">Send Announcement</span>
+            </a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
