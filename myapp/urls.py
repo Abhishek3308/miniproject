@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views 
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     # Authentication
@@ -26,7 +28,11 @@ urlpatterns = [
     path('organization/profile/<str:username>/', views.view_organization_profile, name='organization_profile'),
     # path('organization/<int:id>/', views.organization_detail, name='organization_detail'),
     path('organization/delete/<int:id>/', views.delete_organization, name='delete_organization'),
-    path('admin_dashboard/users/delete/<int:id>/',views.delete_user, name='delete_user'),
+    path('admin_dashboard/users/', views.admin_users, name='admin_users'),
+    path('admin_dashboard/users/delete/<int:user_id>/', views.admin_delete_user, name='delete_user'),
+    path('admin_dashboard/users/toggle-status/<int:user_id>/', views.admin_toggle_user_status, name='toggle_user_status'),
+    path('toggle_organization_status/<int:org_id>/', views.admin_toggle_organization_status, name='toggle_organization_status'),
+    
 
 
     # Idea Management
@@ -45,6 +51,7 @@ urlpatterns = [
     path("admin_dashboard/ideas/",views. admin_ideas, name="admin_ideas"),
     path("admin_dashboard/events/",views.admin_events, name="admin_events"),
     path("dashboard/events/", views.admin_events, name="admin_delete_events"),
+    # path('admin_dashboard/users/<int:user_id>/', views.admin_view_user, name='view_user'),
     
     path('notifications/',views.notifications_view, name='notifications'),
     path('post-event/',views.post_event_view, name='post_event'),
@@ -74,6 +81,35 @@ urlpatterns = [
     path('admin_reports/', views.admin_reports, name='admin_reports'),
     path('add_user/', views.add_user, name='add_user'),
     path('send-announcement/', views.send_announcement_view, name='send_announcement'),
+    path('rate_idea/<int:idea_id>/', views.rate_idea, name='rate_idea'),
 
 
+
+
+
+
+     path('password-reset/',
+         auth_views.PasswordResetView.as_view(
+             template_name='password_reset.html',
+             email_template_name='password_reset_email.html',
+             subject_template_name='password_reset_subject.txt'
+         ),
+         name='password_reset'),
+    path('password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='password_reset_done.html'
+         ),
+         name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='password_reset_confirm.html'
+         ),
+         name='password_reset_confirm'),
+    path('password-reset-complete/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='password_reset_complete.html'
+         ),
+         name='password_reset_complete'),
 ]
+
+

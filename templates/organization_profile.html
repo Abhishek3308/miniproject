@@ -23,6 +23,13 @@
                 <h2 class="text-4xl font-extrabold text-blue-800 mb-1">
                     {{ organization_profile.company_name }}
                 </h2>
+                <!-- Added username below company name -->
+                <p class="text-gray-500 text-sm mb-2">@{{ organization_profile.user.username }}</p>
+            {% else %}
+                <!-- Show username if company name doesn't exist -->
+                <h2 class="text-4xl font-extrabold text-blue-800 mb-1">
+                    @{{ organization_profile.user.username }}
+                </h2>
             {% endif %}
             <p class="text-gray-600 text-lg">
                 {% if organization_profile.industry %}
@@ -38,6 +45,7 @@
         </div>
     </div>
 
+    <!-- Rest of the template remains the same -->
     <!-- Profile Info -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700 mb-10">
         {% if organization_profile.description %}

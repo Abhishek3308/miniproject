@@ -1,11 +1,20 @@
 {% extends "navbar.html" %}
 {% load widget_tweaks %}
-{% block title %}Sign Up{% endblock %}
+{% load static %}
+
+{% block title %}Sign Up | Ideavate{% endblock %}
 
 {% block content %}
-<section class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 pt-20 px-4">
-  <div class="w-full max-w-md p-8 bg-white bg-opacity-90 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-200">
+<section class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 to-indigo-800 pt-20 px-4">
+  <div class="w-full max-w-md p-8 bg-white bg-opacity-95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100">
     
+    <!-- Logo Space -->
+    <div class="flex justify-center mb-6">
+      <img class="h-14 w-14 rounded-full border-2 border-white object-cover" 
+             src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-0278-61f7-b4ea-7d10b20b69cb/raw?se=2025-05-05T21%3A30%3A44Z&sp=r&sv=2024-08-04&sr=b&scid=4c8e70e2-16cd-5abf-8647-44f968b0a672&skoid=f0c3f613-0f9b-4a8a-a29a-c1a910343ad7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-05-05T10%3A26%3A38Z&ske=2025-05-06T10%3A26%3A38Z&sks=b&skv=2024-08-04&sig=podV5K3xPyxlE5dahytUbL3hhyrzo/4smHO7KBfd/F4%3D" 
+             alt="Ideavate Logo">
+    </div>
+
     <!-- Header -->
     <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">Create an Account</h2>
     <p class="text-center text-gray-600 mb-6">Join Ideavate to share your ideas</p>
@@ -33,77 +42,105 @@
       <!-- Username -->
       <div class="relative">
         <i class="fas fa-user absolute left-3 top-3.5 text-gray-400"></i>
-        {{ form.username|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+        {% render_field form.username class="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Username" %}
       </div>
 
       <!-- Email -->
       <div class="relative">
         <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
-        {{ form.email|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+        {% render_field form.email class="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Email address" %}
       </div>
 
-      <!-- Password -->
+      <!-- Password with Toggle -->
       <div class="relative">
         <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
-        {{ form.password1|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+        {% render_field form.password1 class="pl-10 pr-10 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Create password" %}
+        <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2" id="togglePassword1">
+          <i class="fas fa-eye-slash text-gray-400 hover:text-blue-500 transition-colors" id="eyeIcon1"></i>
+        </button>
       </div>
 
-      <!-- Confirm Password -->
+      <!-- Confirm Password with Toggle -->
       <div class="relative">
         <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
-        {{ form.password2|add_class:"pl-10 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+        {% render_field form.password2 class="pl-10 pr-10 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Confirm password" %}
+        <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2" id="togglePassword2">
+          <i class="fas fa-eye-slash text-gray-400 hover:text-blue-500 transition-colors" id="eyeIcon2"></i>
+        </button>
       </div>
 
       <!-- User Type -->
       <div>
-        <label class="block text-gray-700 font-medium mb-1">Sign Up As</label>
-        {{ form.user_type|add_class:"py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+        <label class="block text-gray-700 font-medium mb-2">Sign Up As</label>
+        {% render_field form.user_type class="pl-3 py-2.5 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" %}
       </div>
 
       <!-- Organization-Specific Fields -->
-      <div id="organizationFields" class="hidden space-y-4">
-        <div>
-          <label class="block text-gray-700 font-medium mb-1">Company Name</label>
-          {{ form.company_name|add_class:"py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+      <div id="organizationFields" class="hidden space-y-5">
+        <div class="relative">
+          {% render_field form.company_name class="pl-3 py-2.5 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Company name" %}
         </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1">Job Title</label>
-          {{ form.job_title|add_class:"py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" }}
+        <div class="relative">
+          {% render_field form.job_title class="pl-3 py-2.5 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Job title" %}
         </div>
       </div>
 
       <!-- Submit Button -->
-      <button type="submit"
-        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+      <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-[1.02] active:scale-95">
         Sign Up
       </button>
     </form>
 
     <!-- Already have account -->
-    <p class="mt-6 text-center text-gray-700 text-sm">
+    <p class="mt-6 text-center text-gray-700">
       Already have an account?
-      <a href="{% url 'signin' %}" class="text-blue-600 font-medium hover:underline">Sign In</a>
+      <a href="{% url 'signin' %}" class="font-medium text-blue-600 hover:text-blue-500 hover:underline">Sign In</a>
     </p>
   </div>
 </section>
 
 <!-- FontAwesome -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<!-- Toggle Organization Fields -->
+<!-- JavaScript -->
 <script>
+  // Toggle Organization Fields
   const userTypeSelect = document.getElementById("id_user_type");
   const organizationFields = document.getElementById("organizationFields");
 
   function toggleFields() {
-    if (userTypeSelect.value === "organization") {
+    if (userTypeSelect && userTypeSelect.value === "organization") {
       organizationFields.classList.remove("hidden");
-    } else {
+    } else if (organizationFields) {
       organizationFields.classList.add("hidden");
     }
   }
 
-  userTypeSelect.addEventListener("change", toggleFields);
-  document.addEventListener("DOMContentLoaded", toggleFields);
+  if (userTypeSelect) {
+    userTypeSelect.addEventListener("change", toggleFields);
+    document.addEventListener("DOMContentLoaded", toggleFields);
+  }
+
+  // Password Toggle Functionality
+  function setupPasswordToggle(passwordInputId, toggleButtonId, eyeIconId) {
+    const passwordInput = document.getElementById(passwordInputId);
+    const toggleButton = document.getElementById(toggleButtonId);
+    const eyeIcon = document.getElementById(eyeIconId);
+
+    if (passwordInput && toggleButton && eyeIcon) {
+      toggleButton.addEventListener('click', function() {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        eyeIcon.classList.toggle('fa-eye-slash');
+        eyeIcon.classList.toggle('fa-eye');
+      });
+    }
+  }
+
+  // Initialize both password toggles
+  document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordToggle('id_password1', 'togglePassword1', 'eyeIcon1');
+    setupPasswordToggle('id_password2', 'togglePassword2', 'eyeIcon2');
+  });
 </script>
 {% endblock %}

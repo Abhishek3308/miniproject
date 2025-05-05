@@ -39,7 +39,13 @@
 
   <nav class="bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg py-4 fixed w-full top-0 z-50">
     <div class="container mx-auto flex flex-wrap justify-between items-center px-6">
-      <a href="{% url 'home' %}" class="text-white text-2xl font-bold hover:opacity-90 transition">Ideavate</a>
+      <div class="flex items-center space-x-2">
+        <!-- Added logo here -->
+        <img class="h-10 w-10 rounded-full border-2 border-white object-cover" 
+             src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-0278-61f7-b4ea-7d10b20b69cb/raw?se=2025-05-05T21%3A30%3A44Z&sp=r&sv=2024-08-04&sr=b&scid=4c8e70e2-16cd-5abf-8647-44f968b0a672&skoid=f0c3f613-0f9b-4a8a-a29a-c1a910343ad7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-05-05T10%3A26%3A38Z&ske=2025-05-06T10%3A26%3A38Z&sks=b&skv=2024-08-04&sig=podV5K3xPyxlE5dahytUbL3hhyrzo/4smHO7KBfd/F4%3D" 
+             alt="Ideavate Logo">
+        <a href="{% url 'home' %}" class="text-white text-2xl font-bold hover:opacity-90 transition">Ideavate</a>
+      </div>
 
       <button class="text-white focus:outline-none md:hidden" onclick="toggleMenu(event)">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from .models import User, UserProfile, OrganizationProfile,Idea,PostEvent,Follow,Like,Comment,Report
+from .models import User, UserProfile, OrganizationProfile,Idea,PostEvent,Follow,Like,Comment,Report,Rating
 from .views import user_growth_view  # Import the correct view
 
 
@@ -13,6 +13,7 @@ admin.site.register(Follow)
 admin.site.register(Like)
 admin.site.register(Comment)
 admin.site.register(Report)
+admin.site.register(Rating)
 # admin.site.register(CommentReaction)
 
 

@@ -4,11 +4,13 @@ from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
 from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment,Report
-from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm
+from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm,RatingForm
 from django.urls import path
 from django.template.response import TemplateResponse
 from rapidfuzz import fuzz
-from django.db.models import Q
+from django.db.models import Q,Count
+from django.utils import timezone
+from datetime import timedelta
 
 
 
@@ -367,18 +369,57 @@ def delete_idea(request, idea_id):
 
 @login_required(login_url='signin')
 def idea_list(request):
-    query = request.GET.get("q", "")  # Get search query from the request
+    # Get all parameters from the request
+    query = request.GET.get("q", "")
+    filter_type = request.GET.get("filter", "trending")
+    category = request.GET.get("category", "")
+    
+    # Start with base queryset
+    ideas = Idea.objects.all()
+    
+    # Track if any filters are applied
+    filters_applied = False
+    
+    # Apply category filter if specified
+    if category:
+        ideas = ideas.filter(category__iexact=category)
+        filters_applied = True
+    
+    # Apply main filters
+    if filter_type == "trending":
+        ideas = ideas.annotate(likes_count=Count('like')).order_by('-likes_count')
+        filters_applied = True
+    elif filter_type == "recent":
+        ideas = ideas.order_by('-created_at')
+        filters_applied = True
+    elif filter_type == "top_week":
+        week_ago = timezone.now() - timedelta(days=7)
+        ideas = ideas.filter(created_at__gte=week_ago).annotate(
+            likes_count=Count('like')
+        ).order_by('-likes_count')
+        filters_applied = True
+    
+    # Apply search filter if query exists
     if query:
-        ideas = Idea.objects.filter(idea_name__icontains=query)  # Filter by idea_name
-    else:
-        ideas = Idea.objects.all()  # Show all ideas if no search query
-
-    # Add the like count for each idea
+        ideas = ideas.filter(idea_name__icontains=query)
+        filters_applied = True
+    
+    # Add like information
     for idea in ideas:
         idea.likes_count = idea.like_set.count()
         idea.user_liked = idea.like_set.filter(user=request.user).exists()
 
-    return render(request, 'idea_list.html', {'ideas': ideas, 'query': query})
+    # Get all distinct categories for dropdown
+    categories = Idea.objects.values_list('category', flat=True).distinct()
+
+    return render(request, 'idea_list.html', {
+        'ideas': ideas,
+        'query': query,
+        'filter_type': filter_type,
+        'current_category': category,
+        'filters_applied': filters_applied,
+        'all_categories': categories
+    })
 
 
 
@@ -500,16 +541,27 @@ def post_event_view(request):
 def events_view(request):
     # Get the search query from GET request
     query = request.GET.get('q', '')
+    date_filter = request.GET.get('date', '')
     
-    # Filter events based on the search query
+    # Start with base queryset
+    events = PostEvent.objects.filter(user__is_organization=True).select_related('user__organization_profile')
+    
+    # Apply search filter if query exists
     if query:
-        events = PostEvent.objects.filter(
-            user__is_organization=True, 
-            title__icontains=query
-        ).select_related('user__organization_profile')
-    else:
-        events = PostEvent.objects.filter(user__is_organization=True).select_related('user__organization_profile')
-
+        events = events.filter(title__icontains=query)
+    
+    # Apply date filters
+    if date_filter:
+        today = timezone.now().date()
+        if date_filter == 'upcoming':
+            events = events.filter(date__gte=today)
+        elif date_filter == 'this_week':
+            start_week = today - timedelta(days=today.weekday())
+            end_week = start_week + timedelta(days=6)
+            events = events.filter(date__range=[start_week, end_week])
+        elif date_filter == 'this_month':
+            events = events.filter(date__month=today.month, date__year=today.year)
+    
     return render(request, "events.html", {
         'events': events,
     })
@@ -551,7 +603,56 @@ def delete_event(request, event_id):
 
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_users(request):
+    # Get only normal users (non-organizations)
+    normal_users = User.objects.filter(is_organization=False).order_by('-date_joined')
+    return render(request, 'admin_users.html', {'users': normal_users})
 
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, f'User {user.username} has been deleted.')
+    return redirect('admin_users')
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_toggle_user_status(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        user.is_active = not user.is_active
+        user.save()
+        status = "activated" if user.is_active else "deactivated"
+        messages.success(request, f'User {user.username} has been {status}.')
+    return redirect('admin_users')
+
+
+def admin_toggle_organization_status(request, org_id):
+    if request.method == 'POST':
+        org = get_object_or_404(User, id=org_id, is_organization=True)
+        org.is_active = not org.is_active
+        org.save()
+        messages.success(request, f"Organization {'activated' if org.is_active else 'deactivated'} successfully")
+    return redirect('admin_organizations')
+
+
+
+# def admin_view_user(request, user_id):
+#     profile_user = get_object_or_404(User, id=user_id)
+#     # Make sure to include all necessary context data
+#     context = {
+#         'profile_user': profile_user,
+#         'follower_count': profile_user.followers.count(),
+#         'following_count': profile_user.following.count(),
+#         'ideas': profile_user.ideas.all(),
+#         # Add other context data as needed
+#     }
+#     return render(request, 'user_profile.html', context)
 
 
 
@@ -568,12 +669,12 @@ def delete_organization(request, id):
 
 
 
-@user_passes_test(is_admin, login_url="signin")
-def delete_user(request, id):
-    user = get_object_or_404(User, id=id)
-    user.delete()
-    messages.success(request, "User deleted successfully.")
-    return redirect('admin_users')
+# @user_passes_test(is_admin, login_url="signin")
+# def delete_user(request, id):
+#     user = get_object_or_404(User, id=id)
+#     user.delete()
+#     messages.success(request, "User deleted successfully.")
+#     return redirect('admin_users')
 
 
 
@@ -870,6 +971,23 @@ def add_user(request):
 def send_announcement_view(request):
     # Your logic for sending an announcement
     return render(request, 'send_announcement.html')
+
+
+def rate_idea(request, idea_id):
+    idea = get_object_or_404(Idea, id=idea_id)
+    
+    # Check if the user has already rated the idea
+    rating, created = Rating.objects.get_or_create(idea=idea, user=request.user)
+
+    if request.method == 'POST':
+        form = RatingForm(request.POST, instance=rating)
+        if form.is_valid():
+            form.save()  # Save the updated rating
+            return redirect('idea_detail', idea_id=idea.id)
+    else:
+        form = RatingForm(instance=rating)  # Pre-fill the form with the existing rating if any
+
+    return render(request, 'rate_idea.html', {'idea': idea, 'form': form})
 
 
 

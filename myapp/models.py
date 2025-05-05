@@ -112,3 +112,16 @@ class Report(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reason = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Rating(models.Model):
+    idea = models.ForeignKey(Idea, related_name='ratings', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])  # Rating from 1 to 5
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('idea', 'user')  # Prevent multiple ratings by the same user on the same idea
+
+    def __str__(self):
+        return f'{self.user.username} rated {self.idea.idea_name} {self.score}'

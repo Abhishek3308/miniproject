@@ -1,26 +1,27 @@
 {% extends "navbar.html" %}
+{% load static %}
 
 {% block content %}
 
 <div class="relative bg-gray-50 min-h-screen">
 
     <!-- Message Popup (Success, Error, etc.) -->
-            {% if messages %}
-        <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40 space-y-2">
-            {% for message in messages %}
-            <div class="
-                {% if message.tags == 'error' %}
-                    bg-red-500
-                {% elif message.tags == 'success' %}
-                    bg-green-500
-                {% else %}
-                    bg-blue-500
-                {% endif %}
-                text-white font-semibold px-6 py-3 rounded-lg shadow-md animate-fade-in-out">
-                {{ message }}
-            </div>
-            {% endfor %}
+    {% if messages %}
+    <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40 space-y-2">
+        {% for message in messages %}
+        <div class="
+            {% if message.tags == 'error' %}
+                bg-red-500
+            {% elif message.tags == 'success' %}
+                bg-green-500
+            {% else %}
+                bg-blue-500
+            {% endif %}
+            text-white font-semibold px-6 py-3 rounded-lg shadow-md animate-fade-in-out">
+            {{ message }}
         </div>
+        {% endfor %}
+    </div>
 
     <script>
         setTimeout(function () {
@@ -32,8 +33,13 @@
 
     <div class="flex justify-center items-center pt-20">
         <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
-            <!-- Form Header -->
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">🚀 Post Your Idea</h2>
+            <!-- Form Header with Logo -->
+            <div class="flex justify-center items-center mb-6 space-x-3">
+                <img src="https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-0278-61f7-b4ea-7d10b20b69cb/raw?se=2025-05-05T21%3A30%3A44Z&sp=r&sv=2024-08-04&sr=b&scid=4c8e70e2-16cd-5abf-8647-44f968b0a672&skoid=f0c3f613-0f9b-4a8a-a29a-c1a910343ad7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-05-05T10%3A26%3A38Z&ske=2025-05-06T10%3A26%3A38Z&sks=b&skv=2024-08-04&sig=podV5K3xPyxlE5dahytUbL3hhyrzo/4smHO7KBfd/F4%3D" 
+                 alt="Ideavate Logo" 
+                 class="h-12 w-12 rounded-full border-2 border-blue-500 object-cover">
+                <h2 class="text-3xl font-bold text-center text-gray-800">Post Your Idea</h2>
+            </div>
 
             <!-- Form -->
             <form method="POST" class="space-y-5">
@@ -50,15 +56,17 @@
 
                 <!-- Submit Button -->
                 <button type="submit"
-                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md">
-                    🚀 Submit Idea
+                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md flex items-center justify-center space-x-2">
+                    <span>🚀</span>
+                    <span>Submit Idea</span>
                 </button>
             </form>
 
             <!-- Back Link -->
             <div class="text-center mt-5">
-                <a href="{% url 'home' %}" class="text-blue-600 font-medium hover:underline">
-                    ⬅️ Back to Home
+                <a href="{% url 'home' %}" class="text-blue-600 font-medium hover:underline flex items-center justify-center space-x-1">
+                    <span>⬅️</span>
+                    <span>Back to Home</span>
                 </a>
             </div>
         </div>
@@ -69,17 +77,19 @@
 <style>
     input, textarea, select {
         width: 100%;
-        padding: 10px;
-        margin-top: 4px;
-        border: 1px solid #ddd;
+        padding: 12px;
+        margin-top: 6px;
+        border: 1px solid #e5e7eb;
         border-radius: 8px;
-        transition: border 0.3s;
+        transition: all 0.3s;
+        background-color: #f9fafb;
     }
 
     input:focus, textarea:focus, select:focus {
         border-color: #3b82f6;
+        background-color: white;
         outline: none;
-        box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
     @keyframes fade-in-out {

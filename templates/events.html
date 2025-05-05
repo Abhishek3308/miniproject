@@ -4,67 +4,172 @@
 {% block title %}Events - Ideavate{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-16">
-    <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">Upcoming Events</h1>
+<div class="container mx-auto px-4 py-12 md:py-16">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Discover <span class="text-blue-600">Upcoming Events</span></h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            Connect, learn and grow with our community events. Find the perfect event to spark your creativity.
+        </p>
+    </div>
 
-    <!-- Refined Search Section -->
-    <form method="GET" action="{% url 'events' %}" class="flex justify-center mb-8 bg-gray-50 p-4 rounded-lg shadow-lg max-w-2xl mx-auto">
-        <div class="relative w-full">
+    <!-- Search and Date Filter Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-12 max-w-6xl mx-auto">
+        <form method="GET" action="{% url 'events' %}" class="space-y-4 md:space-y-0 md:flex md:items-end md:space-x-4">
             <!-- Search Input -->
-            <input type="text" name="q" placeholder="Search events..." value="{{ request.GET.q }}"
-                class="border border-gray-300 rounded-lg px-6 py-3 w-full focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-lg shadow-sm placeholder-gray-500">
-            
-            <!-- Search Button -->
-            <button type="submit" class="absolute right-2 top-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out">
-                <!-- SVG Icon for Search -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0v.01M12 20h-1m0-16h1m-1 0l1 1-1 1m-1 0h2l1-1-1-1m2 16h-2"/>
-                </svg>
-            </button>
-        </div>
-    </form>
-
-    {% if events %}
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-        {% for event in events %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:scale-105 flex flex-col">
-            
-            <!-- Organization Profile Picture Top Left -->
-            <div class="absolute top-4 left-4 z-10 flex flex-col items-center bg-white bg-opacity-80 rounded-full p-1 shadow-md transition-all duration-300 ease-in-out">
-                <a href="{% url 'organization_profile' event.user.username %}">
-                    {% if event.user.is_organization and event.user.organization_profile.profile_picture %}
-                        <img src="{{ event.user.organization_profile.profile_picture.url }}" 
-                             class="h-14 w-14 rounded-full object-cover border-4 border-white shadow-lg" alt="Org Profile">
-                    {% else %}
-                        <img src="{% static 'images/default-profile.png' %}" 
-                             class="h-14 w-14 rounded-full object-cover border-4 border-white shadow-lg" alt="Default Profile">
-                    {% endif %}
-                </a>
-                <p class="text-xs text-gray-700 mt-2 text-center font-medium tracking-wide">{{ event.user.username }}</p>
-            </div>
-
-            <!-- Event Image -->
-            <div class="relative w-full h-48">
-                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover rounded-t-lg shadow-md">
-                <div class="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-25 flex justify-center items-center rounded-t-lg">
-                    <p class="text-white text-lg font-bold">{{ event.title }}</p>
+            <div class="flex-1">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="text" id="search" name="q" value="{{ request.GET.q }}" placeholder="Search events by title..."
+                        class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base">
                 </div>
             </div>
 
-            <!-- Event Details -->
-            <div class="p-6 flex flex-col justify-between flex-grow">
-                <p class="text-gray-600 mt-2 flex-grow">{{ event.description|truncatewords:20 }}</p>
+            <!-- Date Filter -->
+            <div class="flex-1">
+                <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <select id="date" name="date" class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-lg shadow-sm">
+                    <option value="">All Dates</option>
+                    <option value="upcoming" {% if request.GET.date == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                    <option value="this_week" {% if request.GET.date == 'this_week' %}selected{% endif %}>This Week</option>
+                    <option value="this_month" {% if request.GET.date == 'this_month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full md:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                Apply Filters
+            </button>
+        </form>
+    </div>
+
+    <!-- Events Grid -->
+    {% if events %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for event in events %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col h-full">
+            <!-- Event Image with Date Badge -->
+            <div class="relative">
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-48 md:h-56 object-cover">
                 
-                <!-- View Details Button -->
-                <a href="{% url 'event_details' event.id %}" class="mt-4 text-center text-white bg-blue-600 hover:bg-blue-700 py-2 px-6 rounded-lg transform transition-all duration-300 ease-in-out flex-shrink-0">
-                    View Details
-                </a>
+                <!-- Date Badge -->
+                <div class="absolute top-4 right-4 bg-white bg-opacity-90 rounded-lg shadow-md px-3 py-2 text-center">
+                    <div class="text-xs font-bold text-blue-600 uppercase">{{ event.date|date:"M" }}</div>
+                    <div class="text-xl font-bold text-gray-800">{{ event.date|date:"d" }}</div>
+                </div>
+                
+                <!-- Organization Profile -->
+                <div class="absolute bottom-4 left-4 flex items-center">
+                    <a href="{% url 'organization_profile' event.user.username %}" class="group">
+                        <div class="flex items-center">
+                            {% if event.user.organization_profile.profile_picture %}
+                                <img src="{{ event.user.organization_profile.profile_picture.url }}" 
+                                     class="h-10 w-10 rounded-full object-cover border-2 border-white shadow-md group-hover:border-blue-300 transition">
+                            {% else %}
+                                <img src="{% static 'images/default-profile.png' %}" 
+                                     class="h-10 w-10 rounded-full object-cover border-2 border-white shadow-md group-hover:border-blue-300 transition">
+                            {% endif %}
+                            <span class="ml-2 text-white font-medium text-sm bg-black bg-opacity-50 px-2 py-1 rounded-md group-hover:text-blue-200 transition">
+                                {{ event.user.username }}
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Event Content -->
+            <div class="p-6 flex flex-col flex-grow">
+                <div class="flex-grow">
+                    <!-- Title -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ event.title }}</h3>
+                    
+                    <!-- Description -->
+                    <p class="text-gray-600 mb-4">{{ event.description|truncatewords:20 }}</p>
+                    
+                    <!-- Event Metadata -->
+                    <div class="flex items-center text-sm text-gray-500 space-x-4 mt-4">
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            {{ event.location|default:"Online" }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ event.date|date:"M d, Y" }} at {{ event.time|default:"TBD" }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Button -->
+                <div class="mt-6">
+                    <a href="{% url 'event_details' event.id %}" class="block w-full text-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition duration-150 ease-in-out">
+                        View Details
+                    </a>
+                </div>
             </div>
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    <div class="mt-12 flex justify-center">
+        <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+            {% if events.has_previous %}
+                <a href="?page={{ events.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                   class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Previous
+                </a>
+            {% endif %}
+            
+            {% for num in events.paginator.page_range %}
+                {% if events.number == num %}
+                    <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                        {{ num }}
+                    </span>
+                {% elif num > events.number|add:'-3' and num < events.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if events.has_next %}
+                <a href="?page={{ events.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                   class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Next
+                </a>
+            {% endif %}
+        </nav>
+    </div>
     {% else %}
-    <p class="text-center text-gray-600">No upcoming events available.</p>
+    <!-- Empty State -->
+    <div class="text-center py-16 bg-gray-50 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-gray-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h3 class="text-2xl font-medium text-gray-700 mb-2">No events found</h3>
+        <p class="text-gray-500 max-w-md mx-auto mb-6">
+            {% if request.GET.q or request.GET.date %}
+                Try adjusting your search filters or
+            {% endif %}
+            Check back later for upcoming events.
+        </p>
+        {% if request.GET.q or request.GET.date %}
+            <a href="{% url 'events' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Clear all filters
+            </a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
 {% endblock %}

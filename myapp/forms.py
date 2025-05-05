@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like, Comment ,Report
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like, Comment ,Report,Rating
 from rapidfuzz import fuzz
 
 class SignUpForm(UserCreationForm):
@@ -181,6 +181,18 @@ class ReportForm(forms.ModelForm):
             'reason': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Describe the reason for reporting...'}),
         }
 
+
+
+class RatingForm(forms.ModelForm):
+    class Meta:
+        model = Rating
+        fields = ['score']  # Only the score field is required for the rating form
+
+    score = forms.ChoiceField(
+        choices=[(i, i) for i in range(1, 6)],  # Ratings from 1 to 5
+        widget=forms.Select(attrs={'class': 'form-select'}),  # Add your custom styles or classes
+        required=True
+    )
 
 
 # class CommentReactionForm(forms.ModelForm):

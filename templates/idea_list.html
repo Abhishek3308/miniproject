@@ -19,147 +19,167 @@
       </div>
       <input type="text" id="search-input" name="q" placeholder="Search for AI concepts, business ideas, tech innovations..."
         class="block w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:outline-none shadow-lg hover:shadow-xl transition-all duration-300">
-      {% comment %} <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-all duration-300">
-        Search
-      </button> {% endcomment %}
     </form>
 
     <!-- Filter Tags -->
     <div class="flex flex-wrap justify-center gap-3 mb-10">
-      <button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-        Trending
-      </button>
-      <button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-        Technology
-      </button>
-      <button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-        Business
-      </button>
-      <button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-        Social Impact
-      </button>
-      <button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-        Recent
-      </button>
+      <a href="{% url 'idea_list' %}?filter=trending" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'trending' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
+          Trending
+      </a>
+      <a href="{% url 'idea_list' %}?filter=technology" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'technology' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
+          Technology
+      </a>
+      <a href="{% url 'idea_list' %}?filter=business" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'business' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
+          Business
+      </a>
+      <a href="{% url 'idea_list' %}?filter=social_impact" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'social_impact' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
+          Social Impact
+      </a>
+      <a href="{% url 'idea_list' %}?filter=recent" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'recent' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
+          Recent
+      </a>
     </div>
-
-    <!-- Ideas List -->
+    
+    <!-- Ideas List Container -->
     <div id="ideas-list" class="space-y-8">
-      {% for idea in ideas %}
-      <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden transform hover:-translate-y-1">
-        <!-- Post Header with Gradient Background -->
-        <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <a href="{% url 'view_profile' idea.user.username %}" class="flex items-center space-x-4 group">
-              {% if idea.user.user_profile.profile_picture %}
-              <img src="{{ idea.user.user_profile.profile_picture.url }}" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
-              {% else %}
-              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-xl font-bold text-blue-800">
-                {{ idea.user.username|first|upper }}
-              </div>
-              {% endif %}
-              <div>
-                <h2 class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{{ idea.user.username }}</h2>
-                <p class="text-sm text-gray-500">{{ idea.created_at|timesince }} ago</p>
-              </div>
-            </a>
-            <span class="px-3 py-1 bg-white rounded-full text-xs font-medium text-blue-600 border border-blue-100">
-              {{ idea.category|default:"Innovation" }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Post Content -->
-        <div class="px-6 py-5">
-          <div class="flex justify-between items-start mb-3">
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ idea.idea_name }}</h3>
-            <span class="flex items-center text-yellow-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span class="ml-1 text-gray-700">{{ idea.rating|default:"4.5" }}</span>
-            </span>
-          </div>
-          
-          <p class="text-gray-700 leading-relaxed mb-4">
-            {{ idea.description|truncatewords:35 }}
-          </p>
-          
-          <div class="flex flex-wrap gap-2 mb-4">
-            {% for tag in idea.tags.all|slice:":3" %}
-            <span class="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
-              #{{ tag.name }}
-            </span>
-            {% endfor %}
-          </div>
-          
-          <a href="{% url 'idea_detail' idea.id %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
-            Read full idea
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </a>
-        </div>
-
-          <!-- Actions -->
-      <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
-        <!-- Like -->
-        <form action="{% if idea.user_liked %}{% url 'unlike_idea' idea.id %}{% else %}{% url 'like_idea' idea.id %}{% endif %}"
-          method="post" class="like-form flex items-center gap-2" data-liked="{{ idea.user_liked|yesno:'true,false' }}">
-          {% csrf_token %}
-          <button type="button" onclick="toggleLike(this)" class="relative group">
-            <div class="relative">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="{% if idea.user_liked %}#facc15{% else %}none{% endif %}"
-                viewBox="0 0 24 24" stroke="{% if idea.user_liked %}#facc15{% else %}#9ca3af{% endif %}"
-                stroke-width="1.5" class="w-6 h-6 bulb-icon {% if idea.user_liked %}glow{% endif %} group-hover:stroke-yellow-500 transition-colors">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M9.75 17h4.5m-4.5 3h4.5M12 2.25c-3.75 0-6 2.672-6 5.25 0 2.154 1.156 3.362 2.003 4.165.373.35.697.653.908.975.212.322.339.698.339 1.11v.25a.75.75 0 0 0 .75.75h3.5a.75.75 0 0 0 .75-.75v-.25c0-.412.127-.788.339-1.11.21-.322.535-.624.908-.975C16.844 10.862 18 9.654 18 7.5c0-2.578-2.25-5.25-6-5.25z" />
-              </svg>
-              <span class="absolute -top-2 -right-2 bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-0.5 rounded-full transform group-hover:scale-110 transition-transform">
-                <span class="like-count">{{ idea.likes_count }}</span>
+      {% if ideas %}
+        {% for idea in ideas %}
+        <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden transform hover:-translate-y-1">
+          <!-- Post Header with Gradient Background -->
+          <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <a href="{% url 'view_profile' idea.user.username %}" class="flex items-center space-x-4 group">
+                {% if idea.user.user_profile.profile_picture %}
+                <img src="{{ idea.user.user_profile.profile_picture.url }}" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                {% else %}
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-xl font-bold text-blue-800">
+                  {{ idea.user.username|first|upper }}
+                </div>
+                {% endif %}
+                <div>
+                  <h2 class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{{ idea.user.username }}</h2>
+                  <p class="text-sm text-gray-500">{{ idea.created_at|timesince }} ago</p>
+                </div>
+              </a>
+              <span class="px-3 py-1 bg-white rounded-full text-xs font-medium text-blue-600 border border-blue-100">
+                {{ idea.category|default:"Innovation" }}
               </span>
             </div>
-          </button>
-          <span class="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">Like</span>
-        </form>
-
-        <!-- Comment -->
-        <a href="{% url 'comment_idea' idea.id %}" class="flex items-center gap-2 group">
-          <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="1.5" class="w-6 h-6 group-hover:stroke-blue-500 transition-colors">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-            </svg>
-            <span class="absolute -top-2 -right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded-full">
-              {{ idea.comments.count }}
-            </span>
           </div>
-          <span class="text-sm text-gray-500 group-hover:text-blue-600 transition-colors">Comment</span>
-        </a>
 
-        <!-- Report -->
-        <a href="{% url 'report_idea' idea.id %}" class="flex items-center gap-2 group">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="1.5" class="w-6 h-6 group-hover:stroke-red-500 transition-colors">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
+          <!-- Post Content -->
+          <div class="px-6 py-5">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ idea.idea_name }}</h3>
+              <span class="flex items-center text-yellow-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span class="ml-1 text-gray-700">{{ idea.rating|default:"4.5" }}</span>
+              </span>
+            </div>
+            
+            <p class="text-gray-700 leading-relaxed mb-4">
+              {{ idea.description|truncatewords:35 }}
+            </p>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              {% for tag in idea.tags.all|slice:":3" %}
+              <span class="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
+                #{{ tag.name }}
+              </span>
+              {% endfor %}
+            </div>
+            
+            <a href="{% url 'idea_detail' idea.id %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              Read full idea
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </a>
+          </div>
+
+          <!-- Actions -->
+          <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+            <!-- Like -->
+            <form action="{% if idea.user_liked %}{% url 'unlike_idea' idea.id %}{% else %}{% url 'like_idea' idea.id %}{% endif %}"
+              method="post" class="like-form flex items-center gap-2" data-liked="{{ idea.user_liked|yesno:'true,false' }}">
+              {% csrf_token %}
+              <button type="button" onclick="toggleLike(this)" class="relative group">
+                <div class="relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="{% if idea.user_liked %}#facc15{% else %}none{% endif %}"
+                    viewBox="0 0 24 24" stroke="{% if idea.user_liked %}#facc15{% else %}#9ca3af{% endif %}"
+                    stroke-width="1.5" class="w-6 h-6 bulb-icon {% if idea.user_liked %}glow{% endif %} group-hover:stroke-yellow-500 transition-colors">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9.75 17h4.5m-4.5 3h4.5M12 2.25c-3.75 0-6 2.672-6 5.25 0 2.154 1.156 3.362 2.003 4.165.373.35.697.653.908.975.212.322.339.698.339 1.11v.25a.75.75 0 0 0 .75.75h3.5a.75.75 0 0 0 .75-.75v-.25c0-.412.127-.788.339-1.11.21-.322.535-.624.908-.975C16.844 10.862 18 9.654 18 7.5c0-2.578-2.25-5.25-6-5.25z" />
+                  </svg>
+                  <span class="absolute -top-2 -right-2 bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-0.5 rounded-full transform group-hover:scale-110 transition-transform">
+                    <span class="like-count">{{ idea.likes_count }}</span>
+                  </span>
+                </div>
+              </button>
+              <span class="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">Like</span>
+            </form>
+
+            <!-- Comment -->
+            <a href="{% url 'comment_idea' idea.id %}" class="flex items-center gap-2 group">
+              <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="1.5" class="w-6 h-6 group-hover:stroke-blue-500 transition-colors">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                </svg>
+                <span class="absolute -top-2 -right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {{ idea.comments.count }}
+                </span>
+              </div>
+              <span class="text-sm text-gray-500 group-hover:text-blue-600 transition-colors">Comment</span>
+            </a>
+
+            <!-- Report -->
+            <a href="{% url 'report_idea' idea.id %}" class="flex items-center gap-2 group">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="1.5" class="w-6 h-6 group-hover:stroke-red-500 transition-colors">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
+              </svg>
+              <span class="text-sm text-gray-500 group-hover:text-red-600 transition-colors">Report</span>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+          <!-- Lightbulb Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
           </svg>
-          <span class="text-sm text-gray-500 group-hover:text-red-600 transition-colors">Report</span>
-        </a>
-      </div>
-
-      {% empty %}
-      <div class="text-center py-12">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-        </svg>
-        <h3 class="text-2xl font-medium text-gray-700 mb-2">No ideas found</h3>
-        <p class="text-gray-500 max-w-md mx-auto">Try adjusting your search or filter to find what you're looking for, or be the first to share your innovative idea!</p>
-        <a href="{% url 'post_idea' %}" class="mt-4 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-          Share Your Idea
-        </a>
-      </div>
-      {% endfor %}
+          
+          <!-- Conditional Messages -->
+          {% if filters_applied %}
+            <h3 class="text-2xl font-medium text-gray-700 mb-2">No ideas match your filters</h3>
+            <p class="text-gray-500 max-w-md mx-auto mb-4">
+              Try adjusting your search criteria or removing some filters
+            </p>
+          {% else %}
+            <h3 class="text-2xl font-medium text-gray-700 mb-2">No ideas have been posted yet</h3>
+            <p class="text-gray-500 max-w-md mx-auto mb-4">
+              Be the first to share your innovative idea!
+            </p>
+          {% endif %}
+          
+          <!-- Action Buttons -->
+          <div class="flex justify-center gap-4">
+            <a href="{% url 'idea_list' %}" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition">
+              Clear all filters
+            </a>
+            <a href="{% url 'post_idea' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Share Your Idea
+            </a>
+          </div>
+        </div>
+      {% endif %}
     </div>
 
     <!-- Pagination -->
+    {% if ideas %}
     <div class="mt-12 flex justify-center">
       <nav class="inline-flex rounded-xl shadow-sm bg-white border border-gray-200 overflow-hidden">
         <a href="#" class="px-4 py-2 border-r border-gray-200 bg-gray-100 text-gray-500">
@@ -179,6 +199,7 @@
         </a>
       </nav>
     </div>
+    {% endif %}
   </div>
 </section>
 
