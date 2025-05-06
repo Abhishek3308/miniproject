@@ -3,55 +3,225 @@
 {% block title %}About Us - Ideavate{% endblock %}
 
 {% block content %}
-<section class="bg-gradient-to-r from-green-400 to-blue-600 text-white py-20 text-center">
-    <div class="container mx-auto">
-        <h1 class="text-5xl font-extrabold">About Us</h1>
-        <p class="mt-4 text-lg">At Ideavate, we believe that the future of innovation lies in the hands of creative individuals. Our platform helps turn ideas into reality.</p>
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-green-400 to-blue-600 text-white py-20 md:py-28 text-center">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-4">About Ideavate</h1>
+        <p class="text-lg md:text-xl max-w-3xl mx-auto">We're revolutionizing how ideas connect with opportunities, empowering innovators to turn visions into reality.</p>
+        <div class="mt-8">
+            <a href="#our-story" class="inline-block px-6 py-2 border-2 border-white text-white font-medium rounded-full hover:bg-white hover:text-blue-600 transition">
+                Learn Our Story
+            </a>
+        </div>
     </div>
 </section>
 
-<section class="container mx-auto py-16 px-6 text-center">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">Our Mission</h2>
-    <p class="text-lg text-gray-600 max-w-2xl mx-auto">We are dedicated to creating a space where innovators can showcase their ideas, collaborate with like-minded individuals, and connect with investors who can help make their vision come to life. Our mission is to empower creativity and fuel change across industries.</p>
-</section>
-
-<section class="bg-gray-100 py-16">
-    <div class="container mx-auto px-6 text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6">Meet the Team</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <img src="https://via.placeholder.com/150" alt="Abhishek Manoj" class="w-32 h-32 rounded-full mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Abhishek Manoj</h3>
-                <p class="text-gray-600">Founder & CEO</p>
-                <p class="text-gray-500 mt-4">Abhishek is passionate about entrepreneurship and innovation. With years of experience, he is committed to building a platform that fosters creativity and collaboration.</p>
+<!-- Our Story Section -->
+<section id="our-story" class="container mx-auto py-16 px-4 sm:px-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+            <span class="inline-block px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full mb-2">Our Journey</span>
+            <h2 class="text-3xl font-bold text-gray-800">From Concept to Platform</h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">How It All Began</h3>
+                <p class="text-gray-600 mb-4">
+                    Founded in 2023 by a team of passionate innovators, Ideavate was born from a simple observation: great ideas often struggle to find the right audience and resources.
+                </p>
+                <p class="text-gray-600 mb-4">
+                    Our founders, coming from diverse backgrounds in technology, business, and creative industries, recognized the need for a dedicated space where ideas could flourish beyond the limitations of traditional networks.
+                </p>
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                    <p class="text-blue-800 font-medium">
+                        "We believe every idea deserves a chance to be heard, developed, and realized - regardless of where it comes from."
+                    </p>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <img src="https://via.placeholder.com/150" alt="Sreelakshmi" class="w-32 h-32 rounded-full mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Sreelakshmi</h3>
-                <p class="text-gray-600">Chief Technology Officer</p>
-                <p class="text-gray-500 mt-4">Sreelakshmi brings cutting-edge technology solutions to Ideavate. With a background in software development, she leads the technical direction of the platform.</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <img src="https://via.placeholder.com/150" alt="Lakshmi" class="w-32 h-32 rounded-full mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Lakshmi</h3>
-                <p class="text-gray-600">Community Manager</p>
-                <p class="text-gray-500 mt-4">Lakshmi works tirelessly to create a supportive and engaging community for users. She helps ensure that all voices are heard and that collaboration thrives on Ideavate.</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <img src="https://via.placeholder.com/150" alt="Athira" class="w-32 h-32 rounded-full mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Athira</h3>
-                <p class="text-gray-600">Operations Lead</p>
-                <p class="text-gray-500 mt-4">Athira is responsible for ensuring smooth operations across the platform. She manages day-to-day activities and helps to keep the team aligned with the platform's goals.</p>
+            <div class="bg-gray-100 rounded-xl overflow-hidden shadow-md">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                     alt="Team working together" 
+                     class="w-full h-full object-cover">
             </div>
         </div>
     </div>
 </section>
 
-<section class="bg-blue-900 text-white py-16 text-center">
-    <div class="container mx-auto">
-        <h2 class="text-3xl font-bold">Join Us in Shaping the Future of Innovation</h2>
-        <p class="text-lg text-blue-100 mt-4">We are more than just a platform. We are a movement towards a world where ideas can thrive, grow, and impact the world. Become part of the Ideavate community today!</p>
-        <a href="{% url 'idea_list' %}" class="mt-6 inline-block px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition">Get Started</a>
+<!-- Mission Section -->
+<section class="bg-gray-50 py-16">
+    <div class="container mx-auto px-4 sm:px-6 text-center">
+        <div class="max-w-3xl mx-auto">
+            <span class="inline-block px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full mb-4">Our Purpose</span>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Driving Innovation Forward</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                We're committed to breaking down barriers between ideas and opportunities. Our platform serves as a catalyst for innovation by connecting creators with resources, mentors, and investors.
+            </p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
+                    <div class="text-blue-500 text-3xl mb-4">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Empower Creators</h3>
+                    <p class="text-gray-600">Provide tools and visibility for innovators at all stages.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
+                    <div class="text-blue-500 text-3xl mb-4">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Foster Connections</h3>
+                    <p class="text-gray-600">Bridge the gap between ideas and implementation resources.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
+                    <div class="text-blue-500 text-3xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Accelerate Growth</h3>
+                    <p class="text-gray-600">Create pathways for ideas to scale and make impact.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12">
+            <span class="inline-block px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full mb-2">The Team</span>
+            <h2 class="text-3xl font-bold text-gray-800">Meet the Visionaries</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mt-4">Dedicated professionals working to make Ideavate the premier platform for innovation.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Team Member 1 -->
+            <div class="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition transform hover:-translate-y-1">
+                <div class="h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" 
+                         alt="Abhishek Manoj" 
+                         class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-md">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-semibold text-gray-800">Abhishek Manoj</h3>
+                    <p class="text-blue-600 font-medium mb-3">Founder & CEO</p>
+                    <p class="text-gray-600 text-sm">Serial entrepreneur with a passion for fostering innovation ecosystems.</p>
+                    <div class="mt-4 flex justify-center space-x-3">
+                        <a href="#" class="text-gray-400 hover:text-blue-500">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 2 -->
+            <div class="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition transform hover:-translate-y-1">
+                <div class="h-48 bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" 
+                         alt="Sreelakshmi" 
+                         class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-md">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-semibold text-gray-800">Sreelakshmi</h3>
+                    <p class="text-blue-600 font-medium mb-3">Chief Technology Officer</p>
+                    <p class="text-gray-600 text-sm">Tech visionary with expertise in scalable platform architecture.</p>
+                    <div class="mt-4 flex justify-center space-x-3">
+                        <a href="#" class="text-gray-400 hover:text-blue-500">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 3 -->
+            <div class="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition transform hover:-translate-y-1">
+                <div class="h-48 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
+                    <img src="https://randomuser.me/api/portraits/women/63.jpg" 
+                         alt="Lakshmi" 
+                         class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-md">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-semibold text-gray-800">Lakshmi</h3>
+                    <p class="text-blue-600 font-medium mb-3">Community Manager</p>
+                    <p class="text-gray-600 text-sm">Connector who builds engaged communities around shared purpose.</p>
+                    <div class="mt-4 flex justify-center space-x-3">
+                        <a href="#" class="text-gray-400 hover:text-blue-500">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 4 -->
+            <div class="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition transform hover:-translate-y-1">
+                <div class="h-48 bg-gradient-to-r from-indigo-400 to-indigo-600 flex items-center justify-center">
+                    <img src="https://randomuser.me/api/portraits/women/28.jpg" 
+                         alt="Athira" 
+                         class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-md">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-semibold text-gray-800">Athira</h3>
+                    <p class="text-blue-600 font-medium mb-3">Operations Lead</p>
+                    <p class="text-gray-600 text-sm">Ensures seamless experiences for all platform stakeholders.</p>
+                    <div class="mt-4 flex justify-center space-x-3">
+                        <a href="#" class="text-gray-400 hover:text-blue-500">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-blue-400">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="grid md:grid-cols-4 gap-8 text-center">
+            <div class="p-6">
+                <div class="text-4xl font-bold mb-2">500+</div>
+                <div class="text-blue-200 font-medium">Innovative Ideas</div>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl font-bold mb-2">120+</div>
+                <div class="text-blue-200 font-medium">Investor Partners</div>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl font-bold mb-2">75+</div>
+                <div class="text-blue-200 font-medium">Projects Funded</div>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl font-bold mb-2">10K+</div>
+                <div class="text-blue-200 font-medium">Community Members</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Ready to Bring Your Ideas to Life?</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto mb-8">Join our growing community of innovators and change-makers today.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            {% comment %} <a href="{% url 'signup' %}" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
+                Sign Up Now
+            </a> {% endcomment %}
+            <a href="{% url 'idea_list' %}" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition">
+                Browse Ideas
+            </a>
+        </div>
     </div>
 </section>
 {% endblock %}

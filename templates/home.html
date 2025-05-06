@@ -146,9 +146,9 @@
     <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400 text-sm">
         © {% now "Y" %} Ideavate. All rights reserved.
         <div class="mt-2">
-            <a href="#" class="hover:text-white transition">Privacy Policy</a> | 
-            <a href="#" class="hover:text-white transition">Terms of Service</a>
+            <a href="{% url 'privacy_policy' %}" class="hover:text-white transition">Privacy Policy</a>  
+            <a href="{% url 'terms_conditions' %}" class="hover:text-white transition">Terms of Service</a>
         </div>
     </div>
 </footer>
-{% endblock %}
+{% endblock %} 

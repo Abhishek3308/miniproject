@@ -44,7 +44,7 @@ urlpatterns = [
     # path('delete_idea/', views.delete_idea, name='delete_idea'),
     path('search_ideas/',views.search_ideas, name='search_ideas'),
     # path("explore-ideas/", views.explore_ideas, name="explore_ideas"),
-    path("investors/", views.investors, name="investors"),
+    # path("investors/", views.investors, name="investors"),
     path("admin_dashboard/",views.admin_dashboard, name="admin_dashboard"),
     path("admin_dashboard/users/",views. admin_users, name="admin_users"),
     path("admin_dashboard/organizations/",views. admin_organizations, name="admin_organizations"),
@@ -84,7 +84,8 @@ urlpatterns = [
     path('rate_idea/<int:idea_id>/', views.rate_idea, name='rate_idea'),
 
 
-
+    path('privacy_policy/', views.privacy_policy, name='privacy_policy'),
+    path('terms_conditions/', views.terms_conditions, name='terms_conditions'),
 
 
 

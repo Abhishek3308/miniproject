@@ -1,0 +1,153 @@
+{% extends 'navbar.html' %}
+
+{% block title %}Terms & Conditions - Ideavate{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Terms & Conditions</h1>
+        <p class="text-lg text-gray-600">Effective Date: {% now "F j, Y" %}</p>
+    </div>
+
+    <!-- Acceptance -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">1. Acceptance of Terms</h2>
+        <p class="text-gray-600">
+            By accessing or using the Ideavate platform ("Service"), you agree to be bound by these Terms. If you disagree, you may not access the Service.
+        </p>
+    </section>
+
+    <!-- Accounts -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">2. User Accounts</h2>
+        <p class="text-gray-600 mb-4">
+            When creating an account, you must provide accurate information. You are responsible for:
+        </p>
+        <ul class="list-disc pl-6 text-gray-600 space-y-2">
+            <li>Maintaining account confidentiality</li>
+            <li>All activities under your account</li>
+            <li>Promptly notifying us of unauthorized use</li>
+        </ul>
+    </section>
+
+    <!-- Content -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">3. User Content</h2>
+        <p class="text-gray-600 mb-4">
+            You retain ownership of content you post, but grant Ideavate a worldwide, non-exclusive, royalty-free license to use, display, and distribute your content in connection with the Service.
+        </p>
+        <p class="text-gray-600">
+            You agree not to post content that:
+        </p>
+        <ul class="list-disc pl-6 text-gray-600 space-y-2">
+            <li>Violates any laws or third-party rights</li>
+            <li>Is defamatory, obscene, or harmful</li>
+            <li>Contains viruses or malicious code</li>
+            <li>Promotes illegal activities</li>
+        </ul>
+    </section>
+
+    <!-- Conduct -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">4. Prohibited Conduct</h2>
+        <p class="text-gray-600 mb-4">
+            You agree not to:
+        </p>
+        <ul class="list-disc pl-6 text-gray-600 space-y-2">
+            <li>Use the Service for illegal purposes</li>
+            <li>Harass, abuse, or harm others</li>
+            <li>Impersonate any person or entity</li>
+            <li>Interfere with Service operation</li>
+            <li>Attempt unauthorized access</li>
+            <li>Use data mining or scraping tools</li>
+            <li>Violate intellectual property rights</li>
+        </ul>
+    </section>
+
+    <!-- Intellectual Property -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">5. Intellectual Property</h2>
+        <p class="text-gray-600 mb-4">
+            The Service and its original content, features, and functionality are owned by Ideavate and protected by international copyright, trademark, and other laws.
+        </p>
+        <p class="text-gray-600">
+            Our trademarks may not be used without prior written permission.
+        </p>
+    </section>
+
+    <!-- Idea Submission -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">6. Idea Submission</h2>
+        <p class="text-gray-600 mb-4">
+            When submitting ideas:
+        </p>
+        <ul class="list-disc pl-6 text-gray-600 space-y-2">
+            <li>You represent you have rights to share the idea</li>
+            <li>We cannot guarantee confidentiality</li>
+            <li>We're not responsible for unauthorized use by others</li>
+            <li>You may choose licensing options for your ideas</li>
+        </ul>
+    </section>
+
+    <!-- Termination -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">7. Termination</h2>
+        <p class="text-gray-600">
+            We may terminate or suspend your account immediately for violations of these Terms without prior notice.
+        </p>
+    </section>
+
+    <!-- Disclaimers -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">8. Disclaimers</h2>
+        <p class="text-gray-600 mb-4">
+            The Service is provided "AS IS" without warranties of any kind. Ideavate does not warrant that:
+        </p>
+        <ul class="list-disc pl-6 text-gray-600 space-y-2">
+            <li>The Service will be uninterrupted or error-free</li>
+            <li>Results will be accurate or reliable</li>
+            <li>Quality will meet your expectations</li>
+        </ul>
+    </section>
+
+    <!-- Limitation of Liability -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">9. Limitation of Liability</h2>
+        <p class="text-gray-600">
+            Ideavate shall not be liable for any indirect, incidental, special, or consequential damages resulting from your use or inability to use the Service.
+        </p>
+    </section>
+
+    <!-- Governing Law -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">10. Governing Law</h2>
+        <p class="text-gray-600">
+            These Terms shall be governed by the laws of [Your Country/State] without regard to its conflict of law provisions.
+        </p>
+    </section>
+
+    <!-- Changes -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">11. Changes to Terms</h2>
+        <p class="text-gray-600">
+            We may modify these Terms at any time. We will notify you of changes by posting the updated Terms and updating the "Effective Date."
+        </p>
+    </section>
+
+    <!-- Contact -->
+    <section>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">12. Contact Us</h2>
+        <p class="text-gray-600">
+            For questions about these Terms, contact us at:
+        </p>
+        <address class="not-italic mt-2 text-gray-600">
+            Ideavate Inc.<br>
+            123 Innovation Drive<br>
+            Tech City, TC 12345<br>
+            Email: legal@ideavate.com<br>
+            Phone: +1 (555) 123-4567
+        </address>
+    </section>
+</div>
+{% endblock %}

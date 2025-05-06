@@ -195,6 +195,37 @@ class RatingForm(forms.ModelForm):
     )
 
 
+class NotificationSettingsForm(forms.Form):
+    EVENT_NOTIFICATIONS = [
+        ('all', 'All event notifications'),
+        ('followed_only', 'Only from organizations I follow'),
+        ('none', 'No event notifications'),
+    ]
+    
+    INTERACTION_NOTIFICATIONS = [
+        ('all', 'All interactions (likes, comments, follows)'),
+        ('none', 'No interaction notifications'),
+    ]
+    
+    event_notifications = forms.ChoiceField(
+        choices=EVENT_NOTIFICATIONS,
+        widget=forms.RadioSelect,
+        initial='followed_only'
+    )
+    
+    interaction_notifications = forms.ChoiceField(
+        choices=INTERACTION_NOTIFICATIONS,
+        widget=forms.RadioSelect,
+        initial='all'
+    )
+    
+    email_notifications = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Receive email notifications'
+    )
+
+
 # class CommentReactionForm(forms.ModelForm):
 #     class Meta:
 #         model = CommentReaction

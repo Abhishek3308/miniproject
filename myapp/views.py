@@ -3,8 +3,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment,Report
-from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm,RatingForm
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment,Report,Notification
+from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm,RatingForm,NotificationSettingsForm
 from django.urls import path
 from django.template.response import TemplateResponse
 from rapidfuzz import fuzz
@@ -161,16 +161,6 @@ def view_user_profile(request, username):
         "is_following": is_following,
         "viewing_own_profile": viewed_user == request.user,
     })
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -429,9 +419,9 @@ def idea_list(request):
 #     return render(request, "explore_ideas.html", {"ideas": ideas})
 
 
-@login_required(login_url='signin')
-def investors(request):
-    return render(request, "investors.html")
+# @login_required(login_url='signin')
+# def investors(request):
+#     return render(request, "investors.html")
 
 # def is_admin(user):
 #     return user.is_authenticated and user.is_superuser
@@ -445,6 +435,7 @@ def investors(request):
 
 def is_admin(user):
     return user.is_authenticated and user.is_superuser
+
 
 # Admin Dashboard View
 @user_passes_test(is_admin, login_url="signin")
@@ -513,9 +504,6 @@ def search_ideas(request):
 
 
 
-
-def notifications_view(request):
-    return render(request, 'notifications.html')
 
 
 @login_required(login_url='signin')  # Ensures only logged-in users can post events
@@ -844,6 +832,7 @@ def unlike_idea(request, idea_id):
 
 
 
+
 @login_required(login_url='signin')
 def comment_idea(request, idea_id):
     idea = get_object_or_404(Idea, id=idea_id)
@@ -854,8 +843,19 @@ def comment_idea(request, idea_id):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.idea = idea
-            comment.user = request.user  # Ensure correct user is commenting
+            comment.user = request.user
             comment.save()
+            
+            # Create notification for the idea owner if it's not their own comment
+            if request.user != idea.user:
+                Notification.objects.create(
+                    recipient=idea.user,
+                    sender=request.user,
+                    notification_type='comment_idea',
+                    idea=idea,
+                    is_read=False
+                )
+            
             return redirect('comment_idea', idea_id=idea.id)
     else:
         form = CommentForm()
@@ -865,6 +865,9 @@ def comment_idea(request, idea_id):
         'form': form,
         'comments': comments
     })
+
+
+
 
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
@@ -964,8 +967,18 @@ def about_us(request):
 
 
 def add_user(request):
-    # Your logic here (form to add user)
-    return render(request, 'add_user.html')
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'User or Organization added successfully!')
+            return redirect('home')  # or wherever you want to redirect after successful creation
+    else:
+        form = SignUpForm()
+    
+    return render(request, 'add_user.html', {'form': form})
+
+
 
 
 def send_announcement_view(request):
@@ -991,3 +1004,51 @@ def rate_idea(request, idea_id):
 
 
 
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
+
+
+
+def terms_conditions(request):
+    return render(request, 'terms_conditions.html')
+
+
+
+@login_required
+def notifications_view(request):
+    # Get all notifications for the current user
+    notifications = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-created_at')
+    
+    # Mark notifications as read when viewed
+    unread_notifications = notifications.filter(is_read=False)
+    unread_notifications.update(is_read=True)
+    
+    # Categorize notifications
+    comment_notifications = notifications.filter(
+        notification_type='comment_idea'
+    ).select_related('sender', 'idea')
+    
+    like_notifications = notifications.filter(
+        notification_type='like_idea'
+    ).select_related('sender', 'idea')
+    
+    follow_notifications = notifications.filter(
+        notification_type='new_follower'
+    ).select_related('sender')
+    
+    event_notifications = notifications.filter(
+        Q(notification_type='event_posted') | 
+        Q(notification_type='event_reminder')
+    ).select_related('sender', 'post_event')
+    
+    context = {
+        'comment_notifications': comment_notifications,
+        'like_notifications': like_notifications,
+        'follow_notifications': follow_notifications,
+        'event_notifications': event_notifications,
+        'unread_count': unread_notifications.count(),
+    }
+    
+    return render(request, 'notifications.html', context)

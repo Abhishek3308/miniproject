@@ -4,71 +4,260 @@
 
 {% block content %}
 <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Total Ideas</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Total Ideas ({{ ideas|length }})</h1>
 
-    <!-- Search Bar -->
-    <div class="flex items-center mb-4">
-        <input type="text" id="searchInput" placeholder="Search Ideas..." class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button onclick="clearSearch()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Clear</button>
+    <!-- Search and Filter Section -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+        <!-- Search Bar -->
+        <div class="flex-1 relative">
+            <input type="text" id="searchInput" placeholder="Search ideas by name, author, or date..." 
+                   class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <svg class="absolute left-3 top-3.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        
+        <!-- Clear Button -->
+        <button onclick="clearSearch()" 
+                class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+            Clear
+        </button>
     </div>
 
     <!-- Ideas Table -->
-    <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
-        <table class="w-full border border-gray-300">
-            <thead>
-                <tr class="bg-gray-200 text-gray-700 text-left">
-                    <th class="py-3 px-4 border">Title</th>
-                    <th class="py-3 px-4 border">Posted By</th>
-                    <th class="py-3 px-4 border">Date Submitted</th>
-                    <th class="py-3 px-4 border text-center">Actions</th>
+    <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable(0)">
+                        Idea Name
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable(1)">
+                        Posted By
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable(2)">
+                        Status
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable(3)">
+                        Date Submitted
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                    </th>
                 </tr>
             </thead>
-            <tbody id="ideaTable">
+            <tbody id="ideaTable" class="bg-white divide-y divide-gray-200">
                 {% for idea in ideas %}
-                <tr class="border hover:bg-gray-50 transition">
-                    <td class="py-3 px-4 border">{{ idea.title }}</td>
-                    <td class="py-3 px-4 border">{{ idea.user.username }}</td>
-                    <td class="py-3 px-4 border">{{ idea.created_at|date:"Y-m-d" }}</td>
-                    <td class="py-3 px-4 border text-center flex justify-center gap-4">
-                        <a href="{% url 'idea_detail' idea.id %}" class="text-blue-600 hover:text-blue-800 transition">
-                            🔍 View
-                        </a>
-                        <form action="{% url 'delete_idea' idea.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this idea?');">
-                            {% csrf_token %}
-                            <button type="submit" class="text-red-600 hover:text-red-800 transition">
-                                🗑 Delete
-                            </button>
-                        </form>
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ idea.idea_name|default:"Untitled Idea" }}</div>
+                        {% if idea.category %}
+                        <div class="text-xs text-blue-600 mt-1">
+                            <span class="bg-blue-100 px-2 py-1 rounded-full">{{ idea.category }}</span>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-700">{{ idea.user.username }}</div>
+                        <div class="text-xs text-gray-500">{{ idea.user.email }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if idea.status == "open" %}
+                            <span class="px-2 py-1 text-xs font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                                Open
+                            </span>
+                        {% elif idea.status == "progress" %}
+                            <span class="px-2 py-1 text-xs font-semibold leading-tight text-yellow-700 bg-yellow-100 rounded-full">
+                                In Progress
+                            </span>
+                        {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold leading-tight text-gray-700 bg-gray-100 rounded-full">
+                                Completed
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-700">{{ idea.created_at|date:"M d, Y" }}</div>
+                        <div class="text-xs text-gray-500">{{ idea.created_at|date:"h:i A" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-4">
+                            <a href="{% url 'idea_detail' idea.id %}" class="text-blue-600 hover:text-blue-900 transition flex items-center" title="View">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                </svg>
+                                View
+                            </a>
+                            <form action="{% url 'delete_idea' idea.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this idea? This action cannot be undone.');">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:text-red-900 transition flex items-center" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-6 text-gray-500">No ideas found.</td>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        No ideas found. Would you like to create one?
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination (if needed) -->
+    {% if is_paginated %}
+    <div class="mt-6 flex justify-center">
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">First</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Previous</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                    {{ num }}
+                </a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Next</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Last</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
 </div>
 
-<!-- JavaScript for Enhanced Search -->
+<!-- JavaScript for Enhanced Functionality -->
 <script>
-    document.getElementById('searchInput').addEventListener('keyup', function() {
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
         let filter = this.value.toLowerCase();
         let rows = document.querySelectorAll("#ideaTable tr");
+        let visibleCount = 0;
 
         rows.forEach(row => {
-            let title = row.cells[0]?.innerText.toLowerCase();
-            let user = row.cells[1]?.innerText.toLowerCase();
-            let date = row.cells[2]?.innerText.toLowerCase();
-            row.style.display = title.includes(filter) || user.includes(filter) || date.includes(filter) ? "" : "none";
+            if (row.cells.length > 1) { // Skip the empty row if present
+                let ideaName = row.cells[0]?.textContent.toLowerCase();
+                let user = row.cells[1]?.textContent.toLowerCase();
+                let status = row.cells[2]?.textContent.toLowerCase();
+                let date = row.cells[3]?.textContent.toLowerCase();
+                
+                if (ideaName.includes(filter) || user.includes(filter) || status.includes(filter) || date.includes(filter)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            }
         });
+
+        // Update the "No ideas found" message if all are filtered out
+        const emptyRow = document.querySelector("#ideaTable tr[style*='none'] + tr");
+        if (emptyRow && emptyRow.cells.length === 1) {
+            if (visibleCount === 0 && filter !== "") {
+                emptyRow.style.display = "";
+                emptyRow.cells[0].textContent = "No ideas match your search criteria.";
+            } else {
+                emptyRow.style.display = "none";
+            }
+        }
     });
 
+    // Clear search
     function clearSearch() {
         document.getElementById('searchInput').value = "";
-        document.querySelectorAll("#ideaTable tr").forEach(row => row.style.display = "");
+        const event = new Event('input');
+        document.getElementById('searchInput').dispatchEvent(event);
+    }
+
+    // Simple table sorting
+    function sortTable(columnIndex) {
+        const table = document.getElementById('ideaTable');
+        const rows = Array.from(table.querySelectorAll('tr')).filter(row => row.cells.length > 1);
+        const header = document.querySelectorAll('thead th')[columnIndex];
+        const isAsc = !header.classList.contains('asc');
+        
+        // Reset all headers
+        document.querySelectorAll('thead th').forEach(th => {
+            th.classList.remove('asc', 'desc');
+        });
+        
+        // Set current header state
+        header.classList.add(isAsc ? 'asc' : 'desc');
+        
+        rows.sort((a, b) => {
+            const aText = a.cells[columnIndex].textContent.trim();
+            const bText = b.cells[columnIndex].textContent.trim();
+            
+            // For date columns (columnIndex 3)
+            if (columnIndex === 3) {
+                return isAsc ? 
+                    new Date(aText.split(',')[0]) - new Date(bText.split(',')[0]) :
+                    new Date(bText.split(',')[0]) - new Date(aText.split(',')[0]);
+            }
+            
+            // Default text comparison
+            return isAsc ? 
+                aText.localeCompare(bText) : 
+                bText.localeCompare(aText);
+        });
+        
+        // Reappend sorted rows
+        rows.forEach(row => table.appendChild(row));
     }
 </script>
 
+<style>
+    thead th.asc::after {
+        content: " ↑";
+        font-size: 0.75rem;
+    }
+    thead th.desc::after {
+        content: " ↓";
+        font-size: 0.75rem;
+    }
+    thead th {
+        cursor: pointer;
+        user-select: none;
+    }
+</style>
 {% endblock %}

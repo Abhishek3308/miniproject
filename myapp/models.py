@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser,Group,Permission
 from django.db import models
+from django.utils import timezone
 
 
 
@@ -125,3 +126,24 @@ class Rating(models.Model):
 
     def __str__(self):
         return f'{self.user.username} rated {self.idea.idea_name} {self.score}'
+    
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('event_posted', 'Event Posted'),
+        ('event_reminder', 'Event Reminder'),
+        ('new_follower', 'New Follower'),
+        ('like_idea', 'Like Idea'),
+        ('comment_idea', 'Comment Idea'),
+    ]
+    
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    idea = models.ForeignKey('Idea', on_delete=models.CASCADE, null=True, blank=True)
+    event = models.ForeignKey('PostEvent', on_delete=models.CASCADE, null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
