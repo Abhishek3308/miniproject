@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like, Comment ,Report,Rating
 from rapidfuzz import fuzz
+from django.core.exceptions import ValidationError
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True)
@@ -18,10 +19,18 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2', 'user_type', 'company_name', 'job_title')
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        allowed_domains = ['@gmail.com']  # Only these domains are allowed
+        
+        if not any(email.endswith(domain) for domain in allowed_domains):
+            raise ValidationError("Only emails ending with @gamil.com is allowed.")
+        
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
         user_type = cleaned_data.get("user_type")
-
 
         if user_type == "organization":
             if not cleaned_data.get("company_name") or not cleaned_data.get("job_title"):
@@ -38,7 +47,6 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
 
-            # If an organization, create an OrganizationProfile
             if user.is_organization:
                 OrganizationProfile.objects.create(
                     user=user,

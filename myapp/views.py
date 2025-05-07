@@ -352,7 +352,8 @@ def edit_idea(request, idea_id):
         form = IdeaForm(request.POST, instance=idea)
         if form.is_valid():
             form.save()
-            return redirect("idea_detail", idea_id=idea.id)
+            return redirect('your_ideas')
+
     else:
         form = IdeaForm(instance=idea)
     return render(request, "edit_idea.html", {"form": form})
@@ -491,6 +492,18 @@ def admin_delete_idea(request, idea_id):
     return redirect('admin_ideas')  # Redirect to home or any other page
 
 
+@user_passes_test(is_admin, login_url="signin")
+def admin_delete_events(request, event_id):
+    # Get the event object by ID or 404 if not found
+    event = get_object_or_404(PostEvent, id=event_id)
+    
+    # Delete the event
+    event.delete()
+    
+    # Redirect to the admin events page after deletion
+    return redirect('admin_events')
+
+
 
 @user_passes_test(is_admin, login_url="signin")
 def admin_events(request):
@@ -535,7 +548,7 @@ def events_view(request):
     date_filter = request.GET.get('date', '')
     
     # Start with base queryset
-    events = PostEvent.objects.filter(user_is_organization=True).select_related('user_organization_profile')
+    events = PostEvent.objects.filter(user__is_organization=True).select_related('user')  # Use 'user__is_organization' for filtering
     
     # Apply search filter if query exists
     if query:
@@ -556,6 +569,7 @@ def events_view(request):
     return render(request, "events.html", {
         'events': events,
     })
+
 
 
 
@@ -654,9 +668,12 @@ def admin_toggle_organization_status(request, org_id):
 
 @user_passes_test(is_admin, login_url="signin")
 def delete_organization(request, id):
-    organization = get_object_or_404(OrganizationProfile, id=id)
-    organization.delete()
+    user = get_object_or_404(User, id=id, is_organization=True)
+    if hasattr(user, "organizationprofile"):
+        user.organizationprofile.delete()  # Delete the profile
+    user.delete()  # Delete the user account
     return redirect('admin_organizations')
+
 
 
 

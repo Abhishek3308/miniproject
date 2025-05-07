@@ -39,29 +39,10 @@
 
     <!-- Idea List Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <!-- Filter Bar -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <span class="text-sm font-medium text-gray-700">Filter:</span>
-                <select class="filter-select bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none">
-                    <option value="all">All Ideas</option>
-                    <option value="published">Published</option>
-                    <option value="drafts">Drafts</option>
-                    <option value="archived">Archived</option>
-                </select>
-            </div>
-            <div class="relative w-full md:w-auto">
-                <input type="text" placeholder="Search your ideas..." class="search-input pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-200 focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                </svg>
-            </div>
-        </div>
-
-        <!-- Ideas List -->
         {% if ideas %}
         <div class="divide-y divide-gray-200">
             {% for idea in ideas %}
+            <!-- Each Idea -->
             <div class="p-6 hover:bg-gray-50 transition duration-150 ease-in-out">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex-1 min-w-0">
@@ -72,7 +53,6 @@
                             </span>
                         </div>
                         <p class="text-gray-600 mb-3">{{ idea.description|truncatewords:30 }}</p>
-                        
                         <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                             <div class="flex items-center gap-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -94,8 +74,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2 shrink-0">
                         <a href="{% url 'edit_idea' idea.id %}" class="btn-outline flex items-center gap-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -168,15 +146,4 @@
         @apply px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium inline-flex items-center;
     }
 </style>
-
-<script>
-    // Simple search functionality
-    document.querySelector('.search-input').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        document.querySelectorAll('.divide-y > div').forEach(idea => {
-            const title = idea.querySelector('h3').textContent.toLowerCase();
-            idea.style.display = title.includes(searchTerm) ? '' : 'none';
-        });
-    });
-</script>
 {% endblock %}

@@ -50,7 +50,7 @@ urlpatterns = [
     path("admin_dashboard/organizations/",views. admin_organizations, name="admin_organizations"),
     path("admin_dashboard/ideas/",views. admin_ideas, name="admin_ideas"),
     path("admin_dashboard/events/",views.admin_events, name="admin_events"),
-    path("dashboard/events/", views.admin_events, name="admin_delete_events"),
+    path('admin_dashboard/events/<int:event_id>/delete/', views.admin_delete_events, name="admin_delete_events"),
     # path('admin_dashboard/users/<int:user_id>/', views.admin_view_user, name='view_user'),
     
     path('notifications/',views.notifications_view, name='notifications'),

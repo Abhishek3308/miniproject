@@ -1,4 +1,5 @@
 {% extends "navbar.html" %}
+{% load currency_filters %}
 
 {% block title %}Idea Details - {{ idea.idea_name }}{% endblock %}
 
@@ -46,27 +47,21 @@
         {% endif %}
 
         <!-- Detail Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {% if idea.category %}
-          <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-500">
-            <h3 class="font-medium text-gray-500 mb-1">Category</h3>
-            <p class="text-gray-800 font-semibold">{{ idea.category }}</p>
-          </div>
-          {% endif %}
-
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {% if idea.funding_goal %}
-          <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-green-500">
+          <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-green-500">
             <h3 class="font-medium text-gray-500 mb-1">Funding Goal</h3>
-            <p class="text-gray-800 font-semibold">${{ idea.funding_goal }}</p>
+            <p class="text-gray-800 font-semibold">{{ idea.funding_goal|inr }}</p>
           </div>
           {% endif %}
 
           {% if idea.estimated_investment %}
-          <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-purple-500">
+          <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-purple-500">
             <h3 class="font-medium text-gray-500 mb-1">Estimated Investment</h3>
-            <p class="text-gray-800 font-semibold">${{ idea.estimated_investment }}</p>
+            <p class="text-gray-800 font-semibold">{{ idea.estimated_investment|inr }}</p>
           </div>
           {% endif %}
+        </div>
 
           <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-yellow-500">
             <h3 class="font-medium text-gray-500 mb-1">Status</h3>

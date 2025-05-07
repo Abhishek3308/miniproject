@@ -1,26 +1,66 @@
 {% extends "navbar.html" %}
 
 {% block content %}
-<h2>Pay ₹{{ idea.price }} to access: "{{ idea.idea_name }}"</h2>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        
+        <!-- Heading -->
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-800">Access Premium Idea</h2>
+            <p class="mt-2 text-gray-600">Unlock the full implementation of <strong>"{{ idea.idea_name }}"</strong></p>
+        </div>
 
-<button id="rzp-button">Pay Now</button>
+        <!-- Payment Summary -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <p class="text-lg text-blue-900 font-semibold text-center">
+                Pay ₹{{ idea.price }} to access this idea.
+            </p>
+        </div>
 
-<form id="payment-success-form" method="POST" action="{% url 'payment_success' %}">
-    {% csrf_token %}
-    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
-    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
-</form>
+        <!-- Payment Button -->
+        <div class="text-center">
+            <button id="rzp-button"
+                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition shadow-lg">
+                💳 Pay Now
+            </button>
+        </div>
 
+        <!-- Form for payment success -->
+        <form id="payment-success-form" method="POST" action="{% url 'payment_success' %}" class="hidden">
+            {% csrf_token %}
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        </form>
+
+        <!-- Optional: Message Box -->
+        {% if messages %}
+            <div class="space-y-2">
+                {% for message in messages %}
+                    <div class="text-white px-4 py-3 rounded shadow
+                        {% if message.tags == 'success' %} bg-green-500
+                        {% elif message.tags == 'error' %} bg-red-500
+                        {% else %} bg-blue-500
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Razorpay Script -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     const options = {
-        "key": "{{ razorpay_key_id }}", // Razorpay Key ID
-        "amount": "{{ order.amount }}", // in paise
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ order.amount }}",
         "currency": "INR",
         "name": "Idea Access Payment",
-        "description": "Pay to view idea: {{ idea.idea_name }}",
-        "order_id": "{{ order.id }}", // Razorpay Order ID
+        "description": "Access: {{ idea.idea_name }}",
+        "order_id": "{{ order.id }}",
         "handler": function (response) {
             document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
             document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
@@ -32,12 +72,11 @@
             "email": "{{ user.email }}"
         },
         "theme": {
-            "color": "#3399cc"
+            "color": "#3b82f6"
         }
     };
 
     const rzp1 = new Razorpay(options);
-
     document.getElementById('rzp-button').onclick = function (e) {
         rzp1.open();
         e.preventDefault();
