@@ -27,6 +27,7 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, "Account created successfully! Please sign in.")
+            print(user,'sdfghj')
             return redirect("signin")  # Redirect to sign-in page after signup
         else:
             for field, error_list in form.errors.items():
@@ -357,59 +358,52 @@ def delete_idea(request, idea_id):
 
 
 
+
 @login_required(login_url='signin')
 def idea_list(request):
-    # Get all parameters from the request
     query = request.GET.get("q", "")
     filter_type = request.GET.get("filter", "trending")
-    category = request.GET.get("category", "")
     
-    # Start with base queryset
     ideas = Idea.objects.all()
-    
-    # Track if any filters are applied
     filters_applied = False
-    
-    # Apply category filter if specified
-    if category:
-        ideas = ideas.filter(category__iexact=category)
+
+    # Filter by category (ai/social/business)
+    if filter_type in ["ai", "social", "business"]:
+        ideas = ideas.filter(category__iexact=filter_type)
         filters_applied = True
-    
-    # Apply main filters
+
+    # Apply additional filters
     if filter_type == "trending":
         ideas = ideas.annotate(likes_count=Count('like')).order_by('-likes_count')
-        filters_applied = True
     elif filter_type == "recent":
         ideas = ideas.order_by('-created_at')
-        filters_applied = True
     elif filter_type == "top_week":
         week_ago = timezone.now() - timedelta(days=7)
         ideas = ideas.filter(created_at__gte=week_ago).annotate(
             likes_count=Count('like')
         ).order_by('-likes_count')
-        filters_applied = True
-    
-    # Apply search filter if query exists
+
+    # Search filter
     if query:
         ideas = ideas.filter(idea_name__icontains=query)
-        filters_applied = True
-    
-    # Add like information
+
+    # ✅ Ensure likes_count is annotated for all ideas
+    if not hasattr(ideas, 'likes_count'):
+        ideas = ideas.annotate(likes_count=Count('like'))
+
+    # Like info
     for idea in ideas:
-        idea.likes_count = idea.like_set.count()
         idea.user_liked = idea.like_set.filter(user=request.user).exists()
 
-    # Get all distinct categories for dropdown
-    categories = Idea.objects.values_list('category', flat=True).distinct()
-
-    return render(request, 'idea_list.html', {
-        'ideas': ideas,
-        'query': query,
-        'filter_type': filter_type,
-        'current_category': category,
-        'filters_applied': filters_applied,
-        'all_categories': categories
+    return render(request, "idea_list.html", {
+        "ideas": ideas,
+        "filter_type": filter_type,
+        "query": query,
+        "filters_applied": filters_applied,
     })
+
+
+
 
 
 
@@ -1016,39 +1010,35 @@ def terms_conditions(request):
 
 @login_required
 def notifications_view(request):
-    # Get all notifications for the current user
     notifications = Notification.objects.filter(
         recipient=request.user
     ).order_by('-created_at')
-    
-    # Mark notifications as read when viewed
-    unread_notifications = notifications.filter(is_read=False)
-    unread_notifications.update(is_read=True)
-    
-    # Categorize notifications
-    comment_notifications = notifications.filter(
-        notification_type='comment_idea'
-    ).select_related('sender', 'idea')
-    
-    like_notifications = notifications.filter(
-        notification_type='like_idea'
-    ).select_related('sender', 'idea')
-    
-    follow_notifications = notifications.filter(
-        notification_type='new_follower'
-    ).select_related('sender')
-    
-    event_notifications = notifications.filter(
-        Q(notification_type='event_posted') | 
-        Q(notification_type='event_reminder')
-    ).select_related('sender', 'post_event')
-    
-    context = {
-        'comment_notifications': comment_notifications,
-        'like_notifications': like_notifications,
-        'follow_notifications': follow_notifications,
-        'event_notifications': event_notifications,
-        'unread_count': unread_notifications.count(),
-    }
-    
+
+    # Mark as read
+    notifications.filter(is_read=False).update(is_read=True)
+
+    context = {}
+
+    if request.user.is_user:
+        # Normal users: only show comment, like, and follow notifications
+        context['comment_notifications'] = notifications.filter(
+            notification_type='comment_idea'
+        ).select_related('sender', 'idea')
+
+        # Optional: you can also include likes and follows if needed
+        context['like_notifications'] = notifications.filter(
+            notification_type='like_idea'
+        ).select_related('sender', 'idea')
+
+        context['follow_notifications'] = notifications.filter(
+            notification_type='new_follower'
+        ).select_related('sender')
+
+    elif request.user.is_organization:
+        # Organizations: only show event-related notifications
+        context['event_notifications'] = notifications.filter(
+            Q(notification_type='event_interest') | 
+            Q(notification_type='event_comment')
+        ).select_related('sender', 'event')
+
     return render(request, 'notifications.html', context)

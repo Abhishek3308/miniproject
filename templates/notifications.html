@@ -4,7 +4,8 @@
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">Notifications</h1>
     
-    <!-- Comment Notifications -->
+    {% if user.is_user %}
+    <!-- For Normal Users - Only Show Idea Notifications -->
     <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Comments on Your Ideas</h2>
         {% if comment_notifications %}
@@ -23,7 +24,11 @@
                     </div>
                     <div>
                         <p>
-                            <a href="{% url 'user_profile' username=notification.sender.username %}" 
+                            <a href="{% if notification.sender.is_organization %}
+                                         {% url 'organization_profile' username=notification.sender.username %}
+                                     {% else %}
+                                         {% url 'user_profile' username=notification.sender.username %}
+                                     {% endif %}"
                                class="font-semibold hover:underline">
                                 {{ notification.sender.username }}
                             </a> 
@@ -44,7 +49,71 @@
             <p class="text-gray-500">No comment notifications</p>
         {% endif %}
     </div>
+    {% endif %}
     
-    <!-- Other notification sections (likes, follows, events) would go here -->
+    {% if user.is_organization %}
+    <!-- For Organizations - Only Show Event Notifications -->
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Event Notifications</h2>
+        {% if event_notifications %}
+            {% for notification in event_notifications %}
+            <div class="bg-white p-4 rounded-lg shadow mb-3">
+                <div class="flex items-start">
+                    <div class="mr-3">
+                        {% if notification.sender.userprofile.profile_picture %}
+                            <img src="{{ notification.sender.userprofile.profile_picture.url }}" 
+                                 class="w-10 h-10 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if notification.notification_type == 'event_interest' %}
+                            <p>
+                                <a href="{% if notification.sender.is_organization %}
+                                             {% url 'organization_profile' username=notification.sender.username %}
+                                         {% else %}
+                                             {% url 'user_profile' username=notification.sender.username %}
+                                         {% endif %}" 
+                                   class="font-semibold hover:underline">
+                                    {{ notification.sender.username }}
+                                </a> 
+                                is interested in your event 
+                                <a href="{% url 'event_details' event_id=notification.event.id %}" 
+                                   class="font-semibold hover:underline">
+                                    "{{ notification.event.title }}"
+                                </a>
+                            </p>
+                        {% elif notification.notification_type == 'event_comment' %}
+                            <p>
+                                <a href="{% if notification.sender.is_organization %}
+                                             {% url 'organization_profile' username=notification.sender.username %}
+                                         {% else %}
+                                             {% url 'user_profile' username=notification.sender.username %}
+                                         {% endif %}" 
+                                   class="font-semibold hover:underline">
+                                    {{ notification.sender.username }}
+                                </a> 
+                                commented on your event 
+                                <a href="{% url 'event_details' event_id=notification.event.id %}" 
+                                   class="font-semibold hover:underline">
+                                    "{{ notification.event.title }}"
+                                </a>
+                            </p>
+                        {% endif %}
+                        <p class="text-sm text-gray-500 mt-1">
+                            {{ notification.created_at|timesince }} ago
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-gray-500">No event notifications</p>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
