@@ -111,6 +111,18 @@ urlpatterns = [
              template_name='password_reset_complete.html'
          ),
          name='password_reset_complete'),
+
+
+    # For paying to access a paid idea
+    path('ideas/<int:idea_id>/pay/', views.initiate_payment, name='initiate_payment'),
+
+    # Razorpay will redirect to this after successful payment
+    path('payment/success/', views.payment_success, name='payment_success'),
+
+    # Main view for any idea (protected if paid)
+    path('ideas/<int:idea_id>/view/', views.view_idea, name='view_idea'),
+
+
 ]
 
 

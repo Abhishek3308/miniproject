@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages,admin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment,Report,Notification
+from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like,Comment,Report,Notification,IdeaAccess
 from .forms import SignUpForm, SignInForm, UserProfileForm, OrganizationProfileForm, IdeaForm ,PostEventForm ,Follow,CommentForm,ReportForm,RatingForm,NotificationSettingsForm
 from django.urls import path
 from django.template.response import TemplateResponse
@@ -11,6 +11,11 @@ from rapidfuzz import fuzz
 from django.db.models import Q,Count
 from django.utils import timezone
 from datetime import timedelta
+from django.http import HttpResponse
+import razorpay
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 
@@ -27,7 +32,6 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, "Account created successfully! Please sign in.")
-            print(user,'sdfghj')
             return redirect("signin")  # Redirect to sign-in page after signup
         else:
             for field, error_list in form.errors.items():
@@ -299,6 +303,7 @@ def post_idea(request):
         if form.is_valid():
             # Custom duplicate check in view (optional - you already do this in form)
             new_idea_name = form.cleaned_data.get('idea_name', '').strip()
+            new_abstract = form.cleaned_data.get('abstract', '').strip() 
             new_description = form.cleaned_data.get('description', '').strip()
 
             for existing_idea in Idea.objects.all():
@@ -308,6 +313,14 @@ def post_idea(request):
                 if name_similarity > 85 or desc_similarity > 80:
                     messages.error(request, "🚫 An idea with a similar name or description already exists.")
                     return redirect("post_idea")
+                
+                  # Payment validation
+            is_paid = form.cleaned_data.get('is_paid', False)
+            price = form.cleaned_data.get('price', None)
+
+            if is_paid and (price is None or price <= 0):
+                messages.error(request, "🚫 Please enter a valid price greater than 0 for a paid idea.")
+                return redirect("post_idea")   
 
             idea = form.save(commit=False)
             idea.user = request.user
@@ -358,7 +371,6 @@ def delete_idea(request, idea_id):
 
 
 
-
 @login_required(login_url='signin')
 def idea_list(request):
     query = request.GET.get("q", "")
@@ -401,9 +413,6 @@ def idea_list(request):
         "query": query,
         "filters_applied": filters_applied,
     })
-
-
-
 
 
 
@@ -526,7 +535,7 @@ def events_view(request):
     date_filter = request.GET.get('date', '')
     
     # Start with base queryset
-    events = PostEvent.objects.filter(user__is_organization=True).select_related('user__organization_profile')
+    events = PostEvent.objects.filter(user_is_organization=True).select_related('user_organization_profile')
     
     # Apply search filter if query exists
     if query:
@@ -542,7 +551,7 @@ def events_view(request):
             end_week = start_week + timedelta(days=6)
             events = events.filter(date__range=[start_week, end_week])
         elif date_filter == 'this_month':
-            events = events.filter(date__month=today.month, date__year=today.year)
+            events = events.filter(date_month=today.month, date_year=today.year)
     
     return render(request, "events.html", {
         'events': events,
@@ -802,6 +811,72 @@ def view_following(request, username):
         'following': following
     })
 
+
+@login_required
+def initiate_payment(request, idea_id):
+    idea = get_object_or_404(Idea, id=idea_id)
+
+    if not idea.is_paid:
+        return redirect('view_idea', idea_id=idea_id)
+
+    # Check if user already paid
+    if IdeaAccess.objects.filter(user=request.user, idea=idea, has_paid=True).exists():
+        return redirect('view_idea', idea_id=idea_id)
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    DATA = {
+        "amount": int(idea.price * 100),  # Razorpay uses paise
+        "currency": "INR",
+        "receipt": f"receipt_{request.user.id}_{idea.id}",
+        "payment_capture": 1,
+    }
+
+    order = client.order.create(data=DATA)
+
+    # Save access request with order ID
+    IdeaAccess.objects.update_or_create(
+        user=request.user,
+        idea=idea,
+        defaults={'razorpay_order_id': order['id']}
+    )
+
+    return render(request, "payment.html", {
+        "idea": idea,
+        "order": order,
+        "razorpay_key_id": settings.RAZORPAY_KEY_ID,
+        "user": request.user
+    })
+
+
+@csrf_exempt
+def payment_success(request):
+    if request.method == "POST":
+        data = request.POST
+
+        try:
+            access = IdeaAccess.objects.get(razorpay_order_id=data['razorpay_order_id'])
+            access.razorpay_payment_id = data['razorpay_payment_id']
+            access.razorpay_signature = data['razorpay_signature']
+            access.has_paid = True
+            access.save()
+            return redirect('view_idea', idea_id=access.idea.id)
+        except IdeaAccess.DoesNotExist:
+            return HttpResponse("Invalid payment", status=400)
+
+    return HttpResponse("Invalid request", status=400)
+
+
+@login_required
+def view_idea(request, idea_id):
+    idea = get_object_or_404(Idea, id=idea_id)
+
+    if idea.is_paid:
+        paid_access = IdeaAccess.objects.filter(user=request.user, idea=idea, has_paid=True).exists()
+        if not paid_access:
+            return redirect('initiate_payment', idea_id=idea_id)
+
+    return render(request, 'view_idea.html', {'idea': idea})
 
 
 

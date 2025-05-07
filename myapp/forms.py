@@ -22,6 +22,7 @@ class SignUpForm(UserCreationForm):
         cleaned_data = super().clean()
         user_type = cleaned_data.get("user_type")
 
+
         if user_type == "organization":
             if not cleaned_data.get("company_name") or not cleaned_data.get("job_title"):
                 raise forms.ValidationError("Company Name and Job Title are required for organizations.")
@@ -75,9 +76,9 @@ class UserProfileForm(forms.ModelForm):
             "profile_picture": forms.ClearableFileInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def _init_(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        super(UserProfileForm, self).__init__(*args, **kwargs)
+        super(UserProfileForm, self)._init_(*args, **kwargs)
         if self.user:
             self.fields['username'].initial = self.user.username
 
@@ -105,13 +106,16 @@ class IdeaForm(forms.ModelForm):
     class Meta:
         model = Idea
         fields = [
-            "idea_name", 
-            "description", 
+            "idea_name",
+            "abstract",  # Added missing comma
             "category", 
             "funding_goal", 
             "estimated_investment", 
             "collaboration", 
-            "status"
+            "status",  # Added missing comma
+            "description",
+            "is_paid",
+            "price",
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4, "placeholder": "Describe your idea..."}),
@@ -122,9 +126,17 @@ class IdeaForm(forms.ModelForm):
         cleaned_data = super().clean()
         idea_name = cleaned_data.get("idea_name")
         description = cleaned_data.get("description")
+        is_paid = cleaned_data.get("is_paid")
+        price = cleaned_data.get("price")
 
         if not idea_name or not description:
             return cleaned_data  # Let Django handle the required field errors
+        
+        if is_paid:
+            if price is None:
+                raise forms.ValidationError("Please set a price for this paid idea.")
+            if price <= 0:
+                raise forms.ValidationError("Price must be greater than 0 for paid ideas.")
 
         # Get all existing ideas except the current one if editing
         existing_ideas = Idea.objects.exclude(pk=self.instance.pk)
@@ -142,6 +154,7 @@ class IdeaForm(forms.ModelForm):
         return cleaned_data
 
 
+
 class PostEventForm(forms.ModelForm):
     class Meta:
         model = PostEvent
@@ -156,8 +169,8 @@ class FollowForm(forms.ModelForm):
         model = Follow
         fields = ['following','follower']
 
-    def __init__(self, *args, **kwargs):
-        super(FollowForm, self).__init__(*args, **kwargs)
+    def _init_(self, *args, **kwargs):
+        super(FollowForm, self)._init_(*args, **kwargs)
 
 
 class LikeForm(forms.ModelForm):

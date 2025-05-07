@@ -1,0 +1,46 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+<h2>Pay ₹{{ idea.price }} to access: "{{ idea.idea_name }}"</h2>
+
+<button id="rzp-button">Pay Now</button>
+
+<form id="payment-success-form" method="POST" action="{% url 'payment_success' %}">
+    {% csrf_token %}
+    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const options = {
+        "key": "{{ razorpay_key_id }}", // Razorpay Key ID
+        "amount": "{{ order.amount }}", // in paise
+        "currency": "INR",
+        "name": "Idea Access Payment",
+        "description": "Pay to view idea: {{ idea.idea_name }}",
+        "order_id": "{{ order.id }}", // Razorpay Order ID
+        "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('payment-success-form').submit();
+        },
+        "prefill": {
+            "name": "{{ user.get_full_name|default:user.username }}",
+            "email": "{{ user.email }}"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+
+    document.getElementById('rzp-button').onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    };
+</script>
+{% endblock %}

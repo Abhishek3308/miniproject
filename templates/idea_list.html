@@ -26,10 +26,9 @@
       <a href="{% url 'idea_list' %}?filter=trending" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'trending' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
           Trending
       </a>
-  <!-- In your filter tags section, replace the technology filter with: -->
-    <a href="{% url 'idea_list' %}?filter=ai" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'ai' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
-      AI
-    </a>
+      <a href="{% url 'idea_list' %}?filter=technology" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'technology' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
+          Technology
+      </a>
       <a href="{% url 'idea_list' %}?filter=business" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all {% if filter_type == 'business' %}bg-blue-50 text-blue-600 border-blue-200{% endif %}">
           Business
       </a>
@@ -92,13 +91,22 @@
               {% endfor %}
             </div>
             
-            <a href="{% url 'idea_detail' idea.id %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
-              Read full idea
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </a>
-          </div>
+            {% if idea.is_paid %}
+                        <a href="{% url 'idea_detail' idea.id %}" class="inline-flex items-center text-yellow-600 hover:text-yellow-800 font-medium transition-colors">
+                            Pay to Access Implementation Details
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'idea_detail' idea.id %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                            Read full idea
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </div>
 
           <!-- Actions -->
           <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">

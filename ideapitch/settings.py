@@ -143,3 +143,7 @@ DEFAULT_FROM_EMAIL = 'your@gmail.com'
 
 # Required for password reset
 PASSWORD_RESET_TIMEOUT = 14400  # 4 hours
+
+
+RAZORPAY_KEY_ID = "rzp_test_ii2o7ZLMU4KJpp"
+RAZORPAY_KEY_SECRET = "4fNTdgNns9cnFZuIJ2aP2idI"

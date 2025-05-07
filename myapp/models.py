@@ -1,7 +1,8 @@
-from django.contrib.auth.models import AbstractUser,Group,Permission,User
+from django.contrib.auth.models import AbstractUser,Group,Permission
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-
+from django.contrib.auth.models import User
 
 
 
@@ -24,7 +25,7 @@ class UserProfile(models.Model):
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.user.username} - {self.profession or 'Ideator'}"
 
 
@@ -40,13 +41,14 @@ class OrganizationProfile(models.Model):
         verbose_name = "Organization_Profile"
         verbose_name_plural = "Organization_Profiles"
 
-    def __str__(self):
+    def _str_(self):
         return self.company_name
     
 class Idea(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ideas")
     idea_name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)  
+    abstract = models.TextField(null=True, blank=True)
+    description = models.TextField(blank=True)
     category = models.CharField(max_length=100, blank=True, null=True)  # Example: Tech, Health, AI
     funding_goal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     estimated_investment = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -56,6 +58,16 @@ class Idea(models.Model):
         choices=[("open", "Open for Investment"), ("progress", "In Progress"), ("completed", "Completed")],
         default="open"
     )
+    is_paid = models.BooleanField(default=False, help_text="Check if you want others to pay to view this idea.")
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0)],
+        help_text="Enter price only if the idea is paid."
+    )
+    paid_users = models.ManyToManyField(User, related_name='paid_ideas', blank=True)  # Removed extra closing parenthesis here
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp when idea is posted
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp when idea is modified
 
@@ -64,8 +76,24 @@ class Idea(models.Model):
         verbose_name_plural = "Ideas"
         ordering = ["-created_at"]  # Show newest ideas first
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.idea_name} - {self.user.username}"
+
+    
+
+class IdeaAccess(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE)
+    has_paid = models.BooleanField(default=False)
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'idea')
+
+
     
 
 class PostEvent(models.Model):
@@ -76,7 +104,7 @@ class PostEvent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="event_images/", blank=True, null=True)  # ✅ Add this field
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.title} by {self.user.username}"
     
 
@@ -88,7 +116,7 @@ class Follow(models.Model):
     class Meta:
         unique_together = ('follower', 'following')
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.follower} follows {self.following}"
 
 
@@ -124,7 +152,7 @@ class Rating(models.Model):
     class Meta:
         unique_together = ('idea', 'user')  # Prevent multiple ratings by the same user on the same idea
 
-    def __str__(self):
+    def _str_(self):
         return f'{self.user.username} rated {self.idea.idea_name} {self.score}'
     
 
