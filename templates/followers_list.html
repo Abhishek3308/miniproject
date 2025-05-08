@@ -23,7 +23,9 @@
                 <p class="text-sm text-gray-500 text-center mt-2">{{ user_profile.profession|default:"No profession" }}</p>
                 <div class="mt-4 flex space-x-4">
                   <a href="{% url 'user_profile' follower.username %}" class="text-blue-600 hover:underline">Profile</a>
-                  <a href="#" class="text-blue-600 hover:underline">Follow</a>
+                  {% if follower != request.user %}
+                    <a href="#" class="text-blue-600 hover:underline">Follow</a>
+                  {% endif %}
                 </div>
               {% endwith %}
 
@@ -38,7 +40,9 @@
                 <p class="text-sm text-gray-500 text-center mt-2">{{ org_profile.job_title }}</p>
                 <div class="mt-4 flex space-x-4">
                   <a href="{% url 'organization_profile' follower.username %}" class="text-blue-600 hover:underline">Profile</a>
-                  <a href="#" class="text-gray-600 hover:underline">Message</a>
+                  {% if follower != request.user %}
+                    <a href="#" class="text-gray-600 hover:underline">Message</a>
+                  {% endif %}
                 </div>
               {% endwith %}
             {% endif %}

@@ -84,9 +84,9 @@ class UserProfileForm(forms.ModelForm):
             "profile_picture": forms.ClearableFileInput(attrs={"class": "w-3/4 px-3 py-1.5 border rounded-md text-sm"}),
         }
 
-    def _init_(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        super(UserProfileForm, self)._init_(*args, **kwargs)
+        super(UserProfileForm, self).__init__(*args, **kwargs)  # ✅ Correct
         if self.user:
             self.fields['username'].initial = self.user.username
 

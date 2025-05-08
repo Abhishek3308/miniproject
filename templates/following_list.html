@@ -26,17 +26,44 @@
                 <p class="text-sm text-gray-500 mt-1">{{ follow.following.user_profile.profession|default:"No profession" }}</p>
               </a>
 
-              <form method="POST" action="{% url 'unfollow_user' follow.following.username %}" class="mt-4">
-                {% csrf_token %}
-                <button type="submit" class="w-full bg-red-100 text-red-600 hover:bg-red-200 font-semibold py-2 rounded transition">
-                  Unfollow
-                </button>
-              </form>
+              {% if request.user == profile_user %}
+                <!-- Show unfollow button only to profile owner -->
+                {% if follow.following != request.user %}  <!-- Prevent self-unfollow -->
+                  <form method="POST" action="{% url 'unfollow_user' follow.following.username %}" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full bg-red-100 text-red-600 hover:bg-red-200 font-semibold py-2 rounded transition">
+                      Unfollow
+                    </button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <!-- Show follow button to other users if not already following and not self -->
+                {% if request.user != follow.following %}
+                  {% if not request.user in follow.following.followers.all %}
+                    <form method="POST" action="{% url 'follow_user' follow.following.username %}" class="mt-4">
+                      {% csrf_token %}
+                      <button type="submit" class="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 font-semibold py-2 rounded transition">
+                        Follow
+                      </button>
+                    </form>
+                  {% else %}
+                    <div class="mt-4 text-center text-sm text-gray-500">
+                      You follow this user
+                    </div>
+                  {% endif %}
+                {% endif %}
+              {% endif %}
             </div>
           {% endfor %}
         </div>
       {% else %}
-        <p class="text-center text-gray-500 text-lg">You are not following anyone yet.</p>
+        <p class="text-center text-gray-500 text-lg">
+          {% if request.user == profile_user %}
+            You are not following anyone yet.
+          {% else %}
+            {{ profile_user.username }} is not following anyone yet.
+          {% endif %}
+        </p>
       {% endif %}
     </div>
 
