@@ -32,16 +32,15 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, "Account created successfully! Please sign in.")
-            return redirect("signin")  # Redirect to sign-in page after signup
+            return redirect("signin")
         else:
-            for field, error_list in form.errors.items():
-                for error in error_list:
-                    messages.error(request, f"{field.capitalize()}: {error}")
-
+            # Don't use messages here — just re-render the form with errors
+            return render(request, "signup.html", {"form": form})
     else:
         form = SignUpForm()
 
     return render(request, "signup.html", {"form": form})
+
 
 
 
@@ -338,11 +337,27 @@ def post_idea(request):
     return render(request, "post_idea.html", {"form": form})
 
 
+
+
 # Idea Detail Page
 @login_required(login_url='signin')
 def idea_detail(request, idea_id):
     idea = get_object_or_404(Idea, id=idea_id)
-    return render(request, "idea_detail.html", {"idea": idea})
+    has_access = False
+
+    if request.user.is_authenticated:
+        if request.user.is_organization:
+            has_access = True
+        else:
+            access = IdeaAccess.objects.filter(user=request.user, idea=idea, has_paid=True).first()
+            if access:
+                has_access = True
+
+    return render(request, "view_idea.html", {
+        'idea': idea,
+        'has_access': has_access,
+    })
+
 
 # Edit Idea
 @login_required(login_url='signin')
@@ -877,7 +892,7 @@ def payment_success(request):
             access.razorpay_signature = data['razorpay_signature']
             access.has_paid = True
             access.save()
-            return redirect('view_idea', idea_id=access.idea.id)
+            return redirect('idea_detail', idea_id=access.idea.id)
         except IdeaAccess.DoesNotExist:
             return HttpResponse("Invalid payment", status=400)
 

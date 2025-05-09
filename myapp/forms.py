@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from .models import User, UserProfile, OrganizationProfile, Idea ,PostEvent ,Follow ,Like, Comment ,Report,Rating
 from rapidfuzz import fuzz
 from django.core.exceptions import ValidationError
+import re
+
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True)
@@ -22,11 +24,24 @@ class SignUpForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         allowed_domains = ['@gmail.com']  # Only these domains are allowed
-        
+
         if not any(email.endswith(domain) for domain in allowed_domains):
-            raise ValidationError("Only emails ending with @gamil.com is allowed.")
-        
+            raise ValidationError("Only emails ending with @gmail.com are allowed.")  # Fixed typo from 'gamil'
+
         return email
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if password1 and password2 and password1 != password2:
+            raise ValidationError("Passwords do not match.")
+
+        # Check for at least one special character from $, #, @
+        if not re.search(r'[\$\#@]', password1):
+            raise ValidationError("Password must contain at least one special character: $, #, or @.")
+
+        return password2
 
     def clean(self):
         cleaned_data = super().clean()
@@ -34,7 +49,7 @@ class SignUpForm(UserCreationForm):
 
         if user_type == "organization":
             if not cleaned_data.get("company_name") or not cleaned_data.get("job_title"):
-                raise forms.ValidationError("Company Name and Job Title are required for organizations.")
+                raise ValidationError("Company Name and Job Title are required for organizations.")
 
         return cleaned_data
 
@@ -55,6 +70,7 @@ class SignUpForm(UserCreationForm):
                 )
 
         return user
+
 
 class SignInForm(forms.Form):
     username = forms.CharField(max_length=150)
